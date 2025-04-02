@@ -25,12 +25,13 @@ jobs:
       - name: Build do projeto
         run: npm run build
         
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Deploy via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
+          server: ${{ secrets.FTP_SERVER }}
+          port: 22
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
-          server-dir: public_html/applications/escola/
-          dangerous-clean-slate: true
+          local_path: './dist/*'
+          remote_path: 'public_html/applications/escola'
+          delete_remote_files: true
