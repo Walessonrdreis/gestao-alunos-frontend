@@ -140,7 +140,7 @@ const Login = () => {
                       />
                       <label className="form-check-label" htmlFor="lembrar">Lembrar-me</label>
                     </div>
-                    <a href="#" className="text-primary">Esqueceu a senha?</a>
+                    <Link to="/recuperar-senha" className="text-primary">Esqueceu a senha?</Link>
                   </div>
                   
                   {message.text && (

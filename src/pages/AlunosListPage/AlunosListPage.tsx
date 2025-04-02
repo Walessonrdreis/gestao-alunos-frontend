@@ -191,9 +191,11 @@ const AlunosListPage = () => {
    */
   const handleVisualizarPDF = (alunoId: number) => {
     console.log('Visualizar PDF do aluno:', alunoId);
-    // Abrir em nova aba a página de agenda do aluno
+    // Obter BASE_PATH a partir da configuração do vite ou usar o valor padrão
+    const BASE_PATH = '/applications/escola';
+    // Abrir em nova aba a página de agenda do aluno com o caminho base correto
     const baseUrl = window.location.origin;
-    window.open(`${baseUrl}/aluno/agenda/${alunoId}`, '_blank');
+    window.open(`${baseUrl}${BASE_PATH}/aluno/agenda/${alunoId}`, '_blank');
   };
 
   /**
