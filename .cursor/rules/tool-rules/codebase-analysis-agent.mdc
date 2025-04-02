@@ -1,0 +1,178 @@
+---
+description: Esta regra define práticas para análise eficiente do codebase antes de qualquer modificação ou criação de novos arquivos. Deve ser considerada sempre que (1) Iniciando o desenvolvimento de novos recursos, (2) Criando novos componentes, páginas ou utilitários, (3) Refatorando código existente, (4) Procurando por código duplicado ou oportunidades de reutilização. É particularmente importante para manter a consistência, evitar duplicação e garantir o uso de padrões existentes no projeto.
+globs: 
+alwaysApply: false
+---
+
+# Análise de Codebase
+
+## Regras Críticas
+
+### Ferramentas de Busca
+- Utilize a busca semântica para encontrar componentes e lógicas similares à que deseja implementar
+- Use grep ou busca de texto para localizar por nome ou funcionalidade
+- Aplique diferentes estratégias de busca: por nome, por funcionalidade, por API, por palavras-chave
+- Realize buscas abrangentes antes de iniciar o desenvolvimento de qualquer novo componente
+
+### Análise de Estrutura de Diretórios
+- Examine a estrutura de diretórios do projeto para entender a organização existente
+- Identifique pastas de componentes comuns, utilitários e serviços compartilhados
+- Localize pastas específicas de domínio que possam conter funcionalidades relacionadas
+- Procure por padrões de nomenclatura de arquivos e organização
+
+### Análise de Importação
+- Analise os padrões de importação em arquivos existentes
+- Verifique as importações mais frequentes para identificar utilitários e componentes comuns
+- Examine os arquivos index.ts/js que podem exportar componentes reutilizáveis
+- Rastreie os caminhos de importação para localizar componentes compartilhados
+
+### Sequência de Análise
+1. Primeiro, liste diretórios relevantes para entender a estrutura do projeto
+2. Em seguida, utilize busca semântica ou grep para localizar funcionalidades similares
+3. Analise os resultados da busca, lendo o código encontrado
+4. Verifique os imports do código relacionado para descobrir mais componentes relevantes
+5. Somente após análise completa, decida se criar um novo componente ou estender existentes
+
+### Documentação da Análise
+- Documente os componentes encontrados durante a análise
+- Registre decisões sobre reutilização vs. criação de novos componentes
+- Mantenha um registro dos padrões de design identificados
+- Atualize a documentação quando estender componentes existentes
+
+## Exemplos
+
+<example>
+// Análise para implementar uma funcionalidade de filtro de lista
+
+// 1. Examinar estrutura de diretórios para entender o projeto
+// $ ls -la src/
+// components/
+// features/
+// hooks/
+// utils/
+// pages/
+
+// 2. Buscar componentes relacionados a filtros
+// Busca semântica: "filter components for lists"
+// Resultados:
+// - src/components/common/FilterBar.jsx
+// - src/features/products/components/ProductFilters.jsx
+// - src/hooks/useFilter.js
+
+// 3. Analisar componentes encontrados
+// src/components/common/FilterBar.jsx
+const FilterBar = ({ 
+  filters, 
+  onFilterChange, 
+  showClearButton = true 
+}) => {
+  const handleClear = () => {
+    onFilterChange({});
+  };
+  
+  return (
+    <div className="filter-bar">
+      {filters.map(filter => (
+        <FilterItem 
+          key={filter.id}
+          filter={filter}
+          onChange={(value) => onFilterChange({ 
+            ...filters, 
+            [filter.id]: value 
+          })}
+        />
+      ))}
+      
+      {showClearButton && (
+        <button 
+          onClick={handleClear}
+          className="clear-filters-btn"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
+};
+
+// src/hooks/useFilter.js
+function useFilter(initialFilters = {}) {
+  const [filters, setFilters] = useState(initialFilters);
+  
+  const updateFilter = useCallback((key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  }, []);
+  
+  const clearFilters = useCallback(() => {
+    setFilters(initialFilters);
+  }, [initialFilters]);
+  
+  const applyFilters = useCallback((items, filterFn) => {
+    return items.filter(item => filterFn(item, filters));
+  }, [filters]);
+  
+  return {
+    filters,
+    updateFilter,
+    clearFilters,
+    applyFilters
+  };
+}
+
+// 4. Decisão e documentação
+// Decisão: Reutilizar o hook useFilter e o componente FilterBar existentes
+// em vez de criar um novo filtro específico, estendendo conforme necessário.
+// 
+// Documentação:
+// - useFilter: Hook genérico para gerenciar estado de filtros e aplicá-los a listas
+// - FilterBar: Componente de UI para exibir e gerenciar filtros
+// - Padrão: Os componentes específicos de domínio devem usar esses componentes
+//   base em vez de implementar seus próprios filtros.
+</example>
+
+<example type="invalid">
+// ❌ Iniciar desenvolvimento sem análise prévia do codebase
+
+// Criando um novo componente de filtro sem verificar existentes
+import React, { useState } from 'react';
+
+// Novo componente duplicado sem verificar componentes existentes
+const ProductFilter = ({ products, onFilteredProductsChange }) => {
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
+  
+  // Função que duplica lógica existente no hook useFilter
+  const applyFilters = () => {
+    const filtered = products.filter(product => {
+      // Filtro de categoria
+      if (categoryFilter !== 'all' && product.category !== categoryFilter) {
+        return false;
+      }
+      
+      // Filtro de preço
+      if (product.price < priceRange.min || product.price > priceRange.max) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    onFilteredProductsChange(filtered);
+  };
+  
+  // Código que continua implementando lógica já existente...
+};
+
+// ❌ Não verificar hooks existentes antes de implementar lógica
+// Implementa lógica que já existe no hook useFilter
+
+// ❌ Ignorar componentes existentes encontrados na busca
+// Não reutiliza FilterBar apesar de ter a mesma funcionalidade
+
+// ❌ Não documentar a análise ou decisão
+// Sem comentários ou documentação explicando por que um novo componente foi criado
+// em vez de reutilizar os existentes
+</example> 

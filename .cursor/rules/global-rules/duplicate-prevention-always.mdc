@@ -1,0 +1,156 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Prevenção de Duplicação e Gestão de Arquivos
+
+## Regras Críticas
+
+### Verificação de Duplicação
+- **SEMPRE** verifique se já existe um arquivo, componente, página ou lógica similar antes de criar um novo
+- Busque arquivos com nomes ou funcionalidades semelhantes em todo o projeto
+- Analise o código existente para identificar padrões ou lógicas que possam ser reutilizadas
+- Priorize a extensão/modificação do código existente em vez de criar duplicações
+- Comunique explicitamente quando encontrar componentes ou lógicas existentes que podem ser reutilizados
+
+### Refatoração e Reutilização
+- Sugira refatorar código existente para aumentar reusabilidade antes de criar uma nova implementação
+- Identifique partes comuns em componentes existentes que podem ser extraídas como componentes reutilizáveis
+- Avalie se a lógica pode ser abstraída em hooks, utilitários ou serviços compartilhados
+- Se a funcionalidade é semelhante mas não idêntica, proponha parametrização do componente existente
+
+### Gestão de Arquivos Duplicados
+- Quando encontrar duplicações, mova os arquivos para a pasta `/duplicated-files` que será removida posteriormente
+- Nunca exclua arquivos duplicados sem antes garantir a preservação da funcionalidade
+- Crie um arquivo de log na pasta de duplicados que registre:
+  - Nome e localização original do arquivo
+  - Por que foi considerado duplicado
+  - Qual arquivo/componente deve ser usado em seu lugar
+- Atualize todas as referências ao arquivo duplicado para apontar para a versão correta
+
+### Análise Antes da Criação
+- Utilize busca de código para verificar a existência de funcionalidades similares
+- Compare a estrutura e propósito do novo componente com os existentes
+- Verifique se a funcionalidade desejada poderia ser implementada como extensão de um componente existente
+- Analise a hierarquia de componentes para identificar oportunidades de composição em vez de duplicação
+- Considere o uso de HOCs ou Render Props para estender funcionalidades sem duplicação
+
+### Documentação de Decisões
+- Documente claramente quando decidir criar um novo componente vs. reutilizar um existente
+- Explique as razões para não utilizar componentes existentes quando optar por criar novos
+- Mantenha um registro das duplicações encontradas e resolvidas
+- Atualize a documentação quando componentes forem refatorados para maior reusabilidade
+
+## Exemplos
+
+<example>
+// Verificação antes de criar um novo componente Button
+
+// 1. Primeiro, buscar componentes de botão existentes
+// grep ou busca semântica por "button", "btn", etc.
+
+// 2. Análise de componente existente
+// src/components/common/Button.jsx (encontrado)
+const Button = ({ 
+  children, 
+  variant = 'primary', 
+  size = 'medium', 
+  onClick,
+  disabled = false,
+  ...rest
+}) => {
+  return (
+    <button
+      className={`btn btn-${variant} btn-${size}`}
+      onClick={onClick}
+      disabled={disabled}
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+};
+
+// 3. Em vez de criar um novo componente IconButton, estender o existente
+// Decisão: Modificar o Button existente para suportar ícones
+const Button = ({ 
+  children, 
+  icon,
+  iconPosition = 'left',
+  variant = 'primary', 
+  size = 'medium', 
+  onClick,
+  disabled = false,
+  ...rest
+}) => {
+  return (
+    <button
+      className={`btn btn-${variant} btn-${size}`}
+      onClick={onClick}
+      disabled={disabled}
+      {...rest}
+    >
+      {icon && iconPosition === 'left' && <span className="btn-icon">{icon}</span>}
+      {children}
+      {icon && iconPosition === 'right' && <span className="btn-icon">{icon}</span>}
+    </button>
+  );
+};
+
+// 4. Documentar a decisão
+// Adicionado suporte a ícones no componente Button existente
+// em vez de criar um componente IconButton separado
+// para evitar duplicação de lógica e manter consistência na UI.
+</example>
+
+<example type="invalid">
+// Criar um novo componente sem verificar existentes
+
+// CustomButton.jsx - Novo componente criado sem verificar se já existe um Button
+const CustomButton = ({ label, onClick }) => {
+  return (
+    <button 
+      className="custom-button"
+      onClick={onClick}
+    >
+      {label}
+    </button>
+  );
+};
+
+// Duplicação de lógica que já existe
+// UserCard.jsx - Novo componente que duplica lógica existente em ProfileCard
+const UserCard = ({ user }) => {
+  return (
+    <div className="user-card">
+      <img src={user.avatar} alt={user.name} />
+      <h3>{user.name}</h3>
+      <p>{user.email}</p>
+    </div>
+  );
+};
+
+// Em vez disso, deveria verificar componentes existentes:
+// ProfileCard.jsx - Componente existente que poderia ser reutilizado
+const ProfileCard = ({ 
+  user, 
+  showEmail = true,
+  showBio = true
+}) => {
+  return (
+    <div className="profile-card">
+      <img src={user.avatar} alt={user.name} />
+      <h3>{user.name}</h3>
+      {showEmail && <p>{user.email}</p>}
+      {showBio && <p className="bio">{user.bio}</p>}
+    </div>
+  );
+};
+
+// Modificar referências sem documentar ou registrar
+// Atualização de imports sem documentação ou organização
+// ❌ import { UserCard } from './UserCard';
+// ✅ import { ProfileCard as UserCard } from './ProfileCard';
+</example>

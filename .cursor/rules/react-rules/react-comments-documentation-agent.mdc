@@ -1,0 +1,363 @@
+---
+description: Este conjunto de regras define padrões para comentários e documentação em projetos React e folhas de estilo. Deve ser considerado sempre que: (1) Criando novos componentes, hooks ou utilitários React, (2) Escrevendo ou modificando arquivos CSS/SCSS, (3) Refatorando código existente, (4) Documentando funcionalidades complexas, (5) Trabalhando em equipe em um projeto compartilhado. A regra garante consistência na documentação, facilita a manutenção e compreensão do código, e promove boas práticas de desenvolvimento. É particularmente crucial em projetos de médio a grande porte onde múltiplos desenvolvedores trabalham no mesmo codebase.
+globs:
+alwaysApply: false
+---
+
+# Regras para Comentários e Documentação em Projetos React
+
+## Regras Críticas
+
+### Comentários em Componentes React
+
+- **Cabeçalho de Componentes**: Todo componente deve ter um bloco de comentário no início que descreva:
+  - Propósito do componente
+  - Props recebidas (com tipos e valores padrão)
+  - Comportamentos especiais ou efeitos colaterais
+  - Dependências importantes
+
+- **Documentação de Props**: Utilize TypeScript ou PropTypes e adicione comentários JSDoc para cada prop
+  - Descreva o propósito da prop
+  - Indique se é obrigatória ou opcional
+  - Explique valores padrão e restrições
+
+- **Comentários para Lógica Complexa**: Adicione comentários explicativos para:
+  - Algoritmos complexos
+  - Decisões arquiteturais não óbvias
+  - Soluções para problemas específicos
+  - Workarounds temporários (com TODOs para remoção futura)
+
+- **Comentários de Hooks**: Documente todos os hooks customizados com:
+  - Propósito e comportamento
+  - Parâmetros e valores de retorno
+  - Exemplos de uso quando apropriado
+  - Dependências e efeitos colaterais
+
+- **Evite Comentários Óbvios**: Não documente o que é auto-explicativo pelo código
+  - Foque em explicar o "porquê" em vez do "o quê"
+  - Use nomes de variáveis e funções descritivos para reduzir a necessidade de comentários
+
+- **TODOs e FIXMEs**: Use de forma padronizada e com contexto
+  - `// TODO: Descrição do que precisa ser feito (Nome/Data)`
+  - `// FIXME: Descrição do problema (Nome/Data)`
+  - Revise periodicamente e remova quando resolvidos
+
+### Comentários em Arquivos CSS/SCSS
+
+- **Organização por Seções**: Divida CSS em seções lógicas com comentários de cabeçalho
+  ```css
+  /* -----------------------------------------------------------------------------
+   * Nome da Seção (ex: Componentes de Layout, Tipografia, etc.)
+   * -------------------------------------------------------------------------- */
+  ```
+
+- **Documentação de Variáveis**: Comente o propósito de variáveis CSS/SCSS
+  ```css
+  /* Cores principais do tema */
+  :root {
+    --primary-color: #0066cc; /* Cor primária para botões e links */
+    --secondary-color: #6c757d; /* Cor secundária para elementos de suporte */
+  }
+  ```
+
+- **Anotações para Media Queries**: Documente o propósito de cada breakpoint
+  ```css
+  /* Tablets e dispositivos menores */
+  @media (max-width: 768px) {
+    /* Estilos responsivos para tablets */
+  }
+  ```
+
+- **Comentários para Seletores Complexos**: Explique seletores CSS complexos ou específicos
+  ```css
+  /* Estiliza apenas o primeiro item da lista que seja um link */
+  ul > li:first-child > a {
+    font-weight: bold;
+  }
+  ```
+
+- **Anotações para Animações**: Documente o propósito e comportamento de animações
+  ```css
+  /* Animação de fade-in suave para modais */
+  @keyframes fadeIn {
+    /* ... */
+  }
+  ```
+
+- **Evite Duplicação**: Use comentários para indicar código compartilhado ou reutilizado
+  ```css
+  /* Compartilha estilos com .btn-primary */
+  .btn-success {
+    /* ... */
+  }
+  ```
+
+### Práticas Gerais
+
+- **Commits e PRs Descritivos**: Associe comentários no código a mudanças em commits/PRs
+- **Mantenha Comentários Atualizados**: Atualize comentários quando o código mudar
+- **Documentação para APIs**: Documente endpoints, parâmetros e respostas para APIs
+- **Consistência**: Siga o mesmo estilo de comentário em todo o projeto
+- **Prefira Código Auto-documentado**: Escreva código claro antes de adicionar comentários
+
+## Exemplos
+
+<example>
+/**
+ * ComponenteExemplo - Um componente de cartão para exibir informações de produtos
+ * 
+ * Renderiza um cartão com imagem, título, descrição e preço do produto.
+ * Inclui funcionalidade para adicionar ao carrinho e exibir badges de promoção.
+ * 
+ * @param {Object} props - Propriedades do componente
+ */
+interface ProdutoCardProps {
+  /** ID único do produto */
+  id: string;
+  /** Título do produto a ser exibido */
+  titulo: string;
+  /** URL da imagem principal do produto */
+  imagemUrl: string;
+  /** Descrição curta do produto (máx. 120 caracteres) */
+  descricao?: string;
+  /** Preço atual do produto em reais */
+  preco: number;
+  /** Preço anterior para mostrar desconto (opcional) */
+  precoAntigo?: number;
+  /** Indica se o produto está em promoção */
+  emPromocao?: boolean;
+  /** Função chamada quando o botão "Adicionar ao Carrinho" é clicado */
+  onAdicionarAoCarrinho: (produtoId: string) => void;
+  /** Classes CSS adicionais para estilização personalizada */
+  className?: string;
+}
+
+const ProdutoCard: React.FC<ProdutoCardProps> = ({
+  id,
+  titulo,
+  imagemUrl,
+  descricao,
+  preco,
+  precoAntigo,
+  emPromocao = false,
+  onAdicionarAoCarrinho,
+  className,
+}) => {
+  // Estado para controlar hover na imagem
+  const [isHovered, setIsHovered] = useState(false);
+  
+  // Formata o preço para exibição em formato brasileiro
+  const formatarPreco = (valor: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(valor);
+  };
+
+  // Calcula a porcentagem de desconto quando há um preço antigo
+  const calcularDesconto = useCallback(() => {
+    if (!precoAntigo || precoAntigo <= preco) return null;
+    
+    const desconto = ((precoAntigo - preco) / precoAntigo) * 100;
+    return Math.round(desconto);
+  }, [preco, precoAntigo]);
+  
+  const descontoPorcentagem = calcularDesconto();
+  
+  // Manipulador para o clique no botão de adicionar ao carrinho
+  const handleAdicionarClick = () => {
+    // Previne clicks acidentais em dispositivos touch
+    if (window.innerWidth < 768) {
+      if (!isHovered) {
+        setIsHovered(true);
+        return;
+      }
+    }
+    
+    onAdicionarAoCarrinho(id);
+  };
+  
+  return (
+    <div 
+      className={`produto-card ${emPromocao ? 'promocao' : ''} ${className || ''}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Badge de desconto, exibido apenas quando há desconto calculado */}
+      {descontoPorcentagem && (
+        <span className="desconto-badge">{descontoPorcentagem}% OFF</span>
+      )}
+      
+      <div className="produto-imagem-container">
+        <img 
+          src={imagemUrl} 
+          alt={titulo}
+          className={isHovered ? 'zoom' : ''}
+        />
+      </div>
+      
+      <div className="produto-info">
+        <h3 className="produto-titulo">{titulo}</h3>
+        
+        {descricao && (
+          <p className="produto-descricao">{descricao}</p>
+        )}
+        
+        <div className="produto-preco-container">
+          <span className="produto-preco">{formatarPreco(preco)}</span>
+          
+          {precoAntigo && precoAntigo > preco && (
+            <span className="produto-preco-antigo">{formatarPreco(precoAntigo)}</span>
+          )}
+        </div>
+        
+        <button 
+          className="btn-adicionar"
+          onClick={handleAdicionarClick}
+          aria-label={`Adicionar ${titulo} ao carrinho`}
+        >
+          Adicionar ao Carrinho
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default memo(ProdutoCard);
+
+
+/* -----------------------------------------------------------------------------
+ * Estilos do Componente ProdutoCard
+ * -------------------------------------------------------------------------- */
+.produto-card {
+  /* Box model */
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+  
+  /* Visual */
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Estado hover do cartão - eleva sutilmente para dar feedback visual */
+.produto-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Badge para destaque de produtos em promoção */
+.desconto-badge {
+  /* Posicionamento */
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  
+  /* Box model */
+  padding: 4px 8px;
+  border-radius: 4px;
+  
+  /* Tipografia */
+  font-size: 12px;
+  font-weight: 700;
+  
+  /* Visual */
+  background-color: var(--danger-color);
+  color: white;
+}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+  .produto-card {
+    /* Ajustes para telas menores */
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .produto-titulo {
+    font-size: 14px;
+  }
+}
+</example>
+
+<example type="invalid">
+// Componente sem documentação adequada
+const Card = (props) => {
+  return (
+    <div className="card">
+      <img src={props.image} />
+      <h3>{props.title}</h3>
+      <p>{props.desc}</p>
+      <div className="price">{props.price}</div>
+      <button onClick={() => props.onAdd(props.id)}>Add</button>
+    </div>
+  );
+};
+
+
+// CSS com comentários inadequados ou ausentes
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  padding: 16px;
+  // isso é um card
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card img {
+  width: 100%;
+  height: auto;
+}
+
+h3 {
+  // título
+  font-size: 18px;
+  margin: 10px 0 5px;
+}
+
+.price {
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.card button {
+  background: blue; // muda para verde depois
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+// Hook sem documentação
+const useLocalStorage = (key, initialValue) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.log(error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return [storedValue, setValue];
+};
+</example> 

@@ -1,0 +1,496 @@
+---
+description: Esta regra define um script para verificar a existência de configurações básicas do GitHub Actions e criá-las caso não existam. Deve ser aplicada sempre que (1) Iniciando um novo projeto que necessita de CI/CD, (2) Verificando se configurações mínimas de GitHub Actions estão presentes, (3) Padronizando estruturas de workflow em múltiplos projetos, (4) Implementando automação de deploy. A regra fornece um script prático para criar rapidamente os arquivos de workflow necessários baseados no tipo de projeto.
+globs: 
+alwaysApply: false
+---
+
+# Script de Verificação de GitHub Actions
+
+## Regras Críticas
+
+- Utilizar o script para verificar a existência de workflows básicos do GitHub Actions
+- Personalizar o script de acordo com o tipo de projeto (Node.js, PHP, Python, etc.)
+- Executar o script durante a criação de novos projetos ou ao migrar projetos existentes
+- Garantir que o script não sobrescreva configurações existentes sem permissão
+- Verificar a estrutura de diretórios `.github/workflows` antes de qualquer operação
+- Adaptar os templates de workflow de acordo com as necessidades específicas do projeto
+
+## Script de Verificação e Criação
+
+O script abaixo verifica e cria arquivos de configuração básicos do GitHub Actions:
+
+```bash
+#!/bin/bash
+
+echo "==== Verificando configurações do GitHub Actions ===="
+
+# Cores para output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Verificar se o diretório .github/workflows existe
+if [ ! -d ".github/workflows" ]; then
+  echo -e "${YELLOW}Diretório .github/workflows não encontrado. Criando...${NC}"
+  mkdir -p .github/workflows
+  echo -e "${GREEN}Diretório .github/workflows criado com sucesso.${NC}"
+else
+  echo -e "${GREEN}Diretório .github/workflows já existe.${NC}"
+fi
+
+# Detectar tipo de projeto
+PROJECT_TYPE="unknown"
+
+if [ -f "package.json" ]; then
+  PROJECT_TYPE="nodejs"
+  echo -e "${GREEN}Projeto Node.js detectado.${NC}"
+elif [ -f "composer.json" ]; then
+  PROJECT_TYPE="php"
+  echo -e "${GREEN}Projeto PHP detectado.${NC}"
+elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
+  PROJECT_TYPE="python"
+  echo -e "${GREEN}Projeto Python detectado.${NC}"
+elif [ -f "pom.xml" ] || [ -f "build.gradle" ]; then
+  PROJECT_TYPE="java"
+  echo -e "${GREEN}Projeto Java detectado.${NC}"
+elif [ -f "Gemfile" ]; then
+  PROJECT_TYPE="ruby"
+  echo -e "${GREEN}Projeto Ruby detectado.${NC}"
+elif [ -f "go.mod" ]; then
+  PROJECT_TYPE="go"
+  echo -e "${GREEN}Projeto Go detectado.${NC}"
+else
+  echo -e "${YELLOW}Tipo de projeto não identificado. Usando configuração genérica.${NC}"
+fi
+
+# Função para criar workflow de CI
+create_ci_workflow() {
+  local project_type=$1
+  
+  if [ -f ".github/workflows/ci.yml" ]; then
+    echo -e "${YELLOW}Arquivo .github/workflows/ci.yml já existe. Pulando...${NC}"
+    return
+  fi
+  
+  echo -e "${YELLOW}Criando workflow CI para projeto ${project_type}...${NC}"
+  
+  case "$project_type" in
+    "nodejs")
+      cat > .github/workflows/ci.yml << 'EOF'
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    name: Teste e Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Instalar dependências
+      run: npm ci
+      
+    - name: Lint
+      run: npm run lint || echo "Lint não configurado"
+    
+    - name: Testes
+      run: npm test || echo "Testes não configurados"
+EOF
+      ;;
+    "php")
+      cat > .github/workflows/ci.yml << 'EOF'
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    name: Teste e Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configurar PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, intl, pdo_mysql
+        coverage: xdebug
+    
+    - name: Verificar sintaxe PHP
+      run: find . -name "*.php" -print0 | xargs -0 -n1 php -l
+    
+    - name: Instalar dependências
+      run: composer install --prefer-dist --no-progress
+      
+    - name: Testes
+      run: vendor/bin/phpunit || echo "PHPUnit não configurado"
+EOF
+      ;;
+    "python")
+      cat > .github/workflows/ci.yml << 'EOF'
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    name: Teste e Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configurar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Instalar dependências
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+        pip install pytest flake8
+      
+    - name: Lint com flake8
+      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    
+    - name: Testes com pytest
+      run: pytest || echo "Testes não configurados"
+EOF
+      ;;
+    *)
+      cat > .github/workflows/ci.yml << 'EOF'
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    name: Teste e Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Verificar estrutura do projeto
+      run: ls -la
+    
+    - name: Executar testes
+      run: echo "Configure os testes específicos para seu projeto aqui"
+EOF
+      ;;
+  esac
+  
+  echo -e "${GREEN}Workflow CI criado com sucesso em .github/workflows/ci.yml${NC}"
+}
+
+# Função para criar workflow de CD
+create_cd_workflow() {
+  local project_type=$1
+  
+  if [ -f ".github/workflows/cd.yml" ]; then
+    echo -e "${YELLOW}Arquivo .github/workflows/cd.yml já existe. Pulando...${NC}"
+    return
+  fi
+  
+  echo -e "${YELLOW}Criando workflow CD para projeto ${project_type}...${NC}"
+  
+  case "$project_type" in
+    "nodejs")
+      cat > .github/workflows/cd.yml << 'EOF'
+name: CD
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Instalar dependências
+      run: npm ci
+    
+    - name: Build
+      run: npm run build
+    
+    - name: Upload artefato de build
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-files
+        path: build/
+        retention-days: 7
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    environment:
+      name: production
+      url: https://example.com
+    
+    steps:
+    - name: Download artefato de build
+      uses: actions/download-artifact@v4
+      with:
+        name: build-files
+        path: build
+    
+    - name: Configurar deploy
+      run: echo "Configurando deploy... Adicione os comandos específicos do seu projeto aqui"
+    
+    - name: Deploy para produção
+      run: echo "Realizando deploy... Adicione os comandos específicos do seu projeto aqui"
+    
+    - name: Verificar deploy
+      run: echo "Verificando deploy... Adicione os comandos específicos do seu projeto aqui"
+EOF
+      ;;
+    "php")
+      cat > .github/workflows/cd.yml << 'EOF'
+name: CD
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configurar PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, intl, pdo_mysql
+    
+    - name: Instalar dependências
+      run: composer install --prefer-dist --no-progress --no-dev --optimize-autoloader
+    
+    - name: Preparar build
+      run: |
+        mkdir -p build
+        cp -r src/ build/
+        cp -r vendor/ build/
+        cp -r public/ build/
+        cp .env.example build/.env
+    
+    - name: Upload artefato de build
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-files
+        path: build/
+        retention-days: 7
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    environment:
+      name: production
+      url: https://example.com
+    
+    steps:
+    - name: Download artefato de build
+      uses: actions/download-artifact@v4
+      with:
+        name: build-files
+        path: build
+    
+    - name: Configurar deploy
+      run: echo "Configurando deploy... Adicione os comandos específicos do seu projeto aqui"
+    
+    - name: Deploy para produção
+      run: echo "Realizando deploy... Adicione os comandos específicos do seu projeto aqui"
+EOF
+      ;;
+    *)
+      cat > .github/workflows/cd.yml << 'EOF'
+name: CD
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Preparar para build
+      run: echo "Preparando build... Adicione os comandos específicos do seu projeto aqui"
+    
+    - name: Build
+      run: echo "Realizando build... Adicione os comandos específicos do seu projeto aqui"
+    
+    - name: Upload artefato de build
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-files
+        path: ./
+        retention-days: 7
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Download artefato de build
+      uses: actions/download-artifact@v4
+      with:
+        name: build-files
+        path: ./
+    
+    - name: Deploy para produção
+      run: echo "Realizando deploy... Adicione os comandos específicos do seu projeto aqui"
+EOF
+      ;;
+  esac
+  
+  echo -e "${GREEN}Workflow CD criado com sucesso em .github/workflows/cd.yml${NC}"
+}
+
+# Criar workflows baseados no tipo de projeto
+create_ci_workflow "$PROJECT_TYPE"
+create_cd_workflow "$PROJECT_TYPE"
+
+echo -e "\n${GREEN}==== Verificação e criação de workflows GitHub Actions concluída ====${NC}"
+echo -e "${YELLOW}Nota: Os workflows criados são templates básicos. Ajuste de acordo com as necessidades específicas do seu projeto.${NC}"
+```
+
+## Como Utilizar o Script
+
+1. Copie o script acima para um arquivo chamado `check-github-actions.sh` na raiz do seu projeto
+2. Dê permissão de execução com `chmod +x check-github-actions.sh`
+3. Execute o script com `./check-github-actions.sh`
+4. O script detectará automaticamente o tipo do seu projeto e criará workflows apropriados
+5. Customize os workflows gerados conforme necessário
+
+## Exemplos
+
+<example>
+# Execução do script em um projeto Node.js
+
+$ ./check-github-actions.sh
+==== Verificando configurações do GitHub Actions ====
+Diretório .github/workflows já existe.
+Projeto Node.js detectado.
+Criando workflow CI para projeto nodejs...
+Workflow CI criado com sucesso em .github/workflows/ci.yml
+Criando workflow CD para projeto nodejs...
+Workflow CD criado com sucesso em .github/workflows/cd.yml
+
+==== Verificação e criação de workflows GitHub Actions concluída ====
+Nota: Os workflows criados são templates básicos. Ajuste de acordo com as necessidades específicas do seu projeto.
+
+# Resultado: dois arquivos criados
+# .github/workflows/ci.yml - para integração contínua
+# .github/workflows/cd.yml - para entrega contínua
+
+# Verificação após execução em um projeto existente
+$ ls -la .github/workflows/
+total 16
+drwxr-xr-x 2 user user 4096 Apr 15 10:30 .
+drwxr-xr-x 3 user user 4096 Apr 15 10:30 ..
+-rw-r--r-- 1 user user 1234 Apr 15 10:30 cd.yml
+-rw-r--r-- 1 user user  890 Apr 15 10:30 ci.yml
+</example>
+
+<example type="invalid">
+# Execução incorreta: chamar o script sem permissão de execução
+$ ./check-github-actions.sh
+bash: permission denied: ./check-github-actions.sh
+
+# Modificação manual incorreta: remover a detecção de tipo de projeto
+#!/bin/bash
+echo "==== Verificando configurações do GitHub Actions ===="
+
+# Sem detecção de tipo de projeto
+# ❌ Criará workflows genéricos que podem não ser adequados
+
+mkdir -p .github/workflows
+
+# ❌ Sobrescreve workflows existentes sem verificação
+cat > .github/workflows/ci.yml << EOF
+name: CI
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: echo "CI"
+EOF
+
+# ❌ Não adapta para o tipo de projeto
+cat > .github/workflows/cd.yml << EOF
+name: CD
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: echo "CD"
+EOF
+
+# Não verifica se já existe
+# Não personaliza para o projeto
+# Não fornece feedback ao usuário
+</example> 

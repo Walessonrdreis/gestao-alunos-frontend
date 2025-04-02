@@ -1,0 +1,370 @@
+---
+description: Este conjunto de regras deve ser aplicado para otimização de performance em aplicações React. Deve ser considerado sempre que: (1) Resolvendo problemas de performance, (2) Otimizando renderizações, (3) Melhorando a velocidade de carregamento inicial, (4) Lidando com grandes conjuntos de dados, (5) Implementando animações ou interações complexas. A regra garante que as aplicações React sejam rápidas, responsivas e eficientes em termos de recursos. É particularmente crucial ao lidar com componentes que renderizam frequentemente, listas longas, operações custosas e ao otimizar a experiência geral do usuário.
+globs: 
+alwaysApply: false
+---
+
+# React Otimizações de Performance
+
+## Regras Críticas
+
+### Otimizações de Renderização
+
+- Use React.memo() para componentes puros que renderizam frequentemente com as mesmas props
+- Utilize useCallback para funções passadas como props para componentes memorizados
+- Aplique useMemo para cálculos custosos que não precisam ser recalculados a cada renderização
+- Evite renderizações desnecessárias utilizando uma estrutura de componentes eficiente
+- Prefira estado local em vez de estado global quando possível
+- Implemente técnicas como renderização condicional e lazy loading
+- Use o React DevTools Profiler para identificar e corrigir renderizações desnecessárias
+
+```jsx
+// Antes da otimização
+const ExpensiveComponent = (props) => {
+  // Sempre recalcula em cada renderização
+  const expensiveCalculation = calculateSomethingExpensive(props.data);
+  
+  return <div>{expensiveCalculation}</div>;
+};
+
+// Após otimização
+const OptimizedComponent = React.memo((props) => {
+  // Recalcula apenas quando props.data muda
+  const expensiveCalculation = useMemo(
+    () => calculateSomethingExpensive(props.data),
+    [props.data]
+  );
+  
+  return <div>{expensiveCalculation}</div>;
+});
+```
+
+### Gerenciamento de Estado Eficiente
+
+- Minimize o estado global; use-o apenas para dados verdadeiramente globais
+- Separe estados não relacionados em múltiplos useState em vez de objetos complexos
+- Use useReducer para lógica de estado complexa e relacionada
+- Implemente context splitting para evitar renderizações desnecessárias
+- Considere bibliotecas de gerenciamento de estado otimizadas como Zustand ou Jotai
+- Utilize técnicas de normalização para estruturas de dados complexas
+
+```jsx
+// Antes: Contexto único causa re-renderizações desnecessárias
+const AppContext = createContext();
+
+const AppProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [theme, setTheme] = useState('light');
+  const [notifications, setNotifications] = useState([]);
+  
+  // Todos componentes consomem tudo e re-renderizam para qualquer mudança
+  return (
+    <AppContext.Provider value={{ user, setUser, theme, setTheme, notifications, setNotifications }}>
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+// Depois: Contextos separados previnem re-renderizações desnecessárias
+const UserContext = createContext();
+const ThemeContext = createContext();
+const NotificationContext = createContext();
+
+const AppProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [theme, setTheme] = useState('light');
+  const [notifications, setNotifications] = useState([]);
+  
+  return (
+    <UserContext.Provider value={{ user, setUser }}>
+      <ThemeContext.Provider value={{ theme, setTheme }}>
+        <NotificationContext.Provider value={{ notifications, setNotifications }}>
+          {children}
+        </NotificationContext.Provider>
+      </ThemeContext.Provider>
+    </UserContext.Provider>
+  );
+};
+```
+
+### Otimização de Listas e Dados
+
+- Use virtualização para renderizar grandes listas (react-window, react-virtualized)
+- Implemente paginação para conjuntos de dados extensos
+- Utilize keys únicas e estáveis para itens de lista
+- Aplique técnicas de debounce/throttle para manipuladores de eventos frequentes
+- Memoize funções de filtro e sort para evitar recálculos desnecessários
+- Considere estratégias de cache para dados obtidos da API (React Query, SWR)
+
+```jsx
+// Antes: Renderiza todos os itens de uma vez
+const LongList = ({ items }) => {
+  return (
+    <div>
+      {items.map(item => (
+        <ListItem key={item.id} item={item} />
+      ))}
+    </div>
+  );
+};
+
+// Depois: Usa virtualização para renderizar apenas itens visíveis
+import { FixedSizeList } from 'react-window';
+
+const VirtualizedList = ({ items }) => {
+  const renderRow = ({ index, style }) => (
+    <div style={style}>
+      <ListItem item={items[index]} />
+    </div>
+  );
+
+  return (
+    <FixedSizeList
+      height={500}
+      width="100%"
+      itemCount={items.length}
+      itemSize={50}
+    >
+      {renderRow}
+    </FixedSizeList>
+  );
+};
+```
+
+### Otimização de Carregamento
+
+- Implemente code splitting com React.lazy() e Suspense
+- Utilize técnicas de bundle splitting para reduzir o tamanho inicial de carregamento
+- Priorize o carregamento de componentes essenciais usando dynamic imports
+- Aplique lazy loading para imagens e componentes pesados
+- Considere server-side rendering ou static site generation para melhorar o tempo de carregamento inicial
+- Utilize prefetching para recursos que serão necessários em breve
+
+```jsx
+// Antes: Importa tudo de uma vez
+import HeavyComponent from './HeavyComponent';
+
+// Depois: Carrega o componente apenas quando necessário
+import React, { Suspense, lazy } from 'react';
+const HeavyComponent = lazy(() => import('./HeavyComponent'));
+
+function App() {
+  return (
+    <div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <HeavyComponent />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+### Otimização de Efeitos
+
+- Defina dependências precisas em useEffect para evitar efeitos desnecessários
+- Use cleanup functions em useEffect para prevenir memory leaks
+- Aplique debounce ou throttle para efeitos disparados por eventos frequentes
+- Considere usar hooks customizados para encapsular efeitos complexos
+- Evite acessar props ou state anteriores usando closures em useEffect
+
+```jsx
+// Antes: Dependências incompletas ou inexistentes
+useEffect(() => {
+  fetchData(userId, filters); // Problema: filters não está nas dependências
+}, [userId]); // Missing dependency: filters
+
+// Depois: Dependências corretas e completas
+useEffect(() => {
+  fetchData(userId, filters);
+}, [userId, filters]);
+
+// Antes: Sem cleanup para event listeners
+useEffect(() => {
+  window.addEventListener('resize', handleResize);
+}, []);
+
+// Depois: Com cleanup adequado
+useEffect(() => {
+  window.addEventListener('resize', handleResize);
+  return () => {
+    window.removeEventListener('resize', handleResize);
+  };
+}, [handleResize]);
+```
+
+## Exemplos
+
+<example>
+// Bom - Custom Hook otimizado com useMemo e useCallback
+const useUserData = (userId) => {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+  // useCallback para evitar recriações desnecessárias da função
+  const fetchUserData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/users/${userId}`);
+      const data = await response.json();
+      setUserData(data);
+    } catch (error) {
+      console.error('Failed to fetch user data', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+  
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+  
+  // useMemo para cálculos derivados caros
+  const processedData = useMemo(() => {
+    if (!userData) return null;
+    
+    return {
+      ...userData,
+      fullName: `${userData.firstName} ${userData.lastName}`,
+      isAdmin: userData.roles.includes('admin'),
+      formattedDate: new Date(userData.createdAt).toLocaleDateString()
+    };
+  }, [userData]);
+  
+  return { userData: processedData, loading, refetch: fetchUserData };
+};
+
+// Bom - Componente otimizado com React.memo e useCallback
+const UserCard = React.memo(({ user, onEdit, onDelete }) => {
+  return (
+    <div className="user-card">
+      <h3>{user.fullName}</h3>
+      <p>{user.email}</p>
+      <div className="actions">
+        <button onClick={() => onEdit(user.id)}>Edit</button>
+        <button onClick={() => onDelete(user.id)}>Delete</button>
+      </div>
+    </div>
+  );
+});
+
+const UserList = ({ users }) => {
+  // Wrap em useCallback para evitar recriação dessas funções a cada render
+  const handleEdit = useCallback((userId) => {
+    // Lógica de edição
+    console.log('Edit user', userId);
+  }, []);
+  
+  const handleDelete = useCallback((userId) => {
+    // Lógica de exclusão
+    console.log('Delete user', userId);
+  }, []);
+  
+  return (
+    <div className="user-list">
+      {users.map(user => (
+        <UserCard 
+          key={user.id}
+          user={user}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Bom - Lazy loading e code splitting
+const App = () => {
+  return (
+    <Router>
+      <Suspense fallback={<Spinner />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route 
+            path="/dashboard" 
+            element={<React.lazy(() => import('./pages/Dashboard'))} />
+          <Route 
+            path="/settings" 
+            element={<React.lazy(() => import('./pages/Settings'))} />
+        </Routes>
+      </Suspense>
+    </Router>
+  );
+};
+</example>
+
+<example type="invalid">
+// Ruim - Recálculos desnecessários em cada renderização
+const ExpensiveList = ({ items, query }) => {
+  // Este filtro será recalculado em CADA renderização, mesmo sem alterações
+  const filteredItems = items.filter(item => 
+    item.name.toLowerCase().includes(query.toLowerCase())
+  );
+  
+  // Função recriada em cada renderização
+  const handleItemClick = (itemId) => {
+    console.log('Selected item', itemId);
+  };
+  
+  return (
+    <div>
+      {filteredItems.map(item => (
+        <div key={item.id} onClick={() => handleItemClick(item.id)}>
+          {item.name}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Ruim - Dependências faltando em useEffect
+const UserProfile = ({ userId, onUpdate }) => {
+  const [user, setUser] = useState(null);
+  
+  // Problema 1: onUpdate não está nas dependências
+  // Problema 2: não tem cleanup function
+  useEffect(() => {
+    fetch(`/api/users/${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        setUser(data);
+        onUpdate(data);  // Esta dependência não está listada
+      });
+  }, [userId]); // Falta onUpdate nas dependências
+  
+  return <div>{user?.name}</div>;
+};
+
+// Ruim - Inline objects e funções causando re-renderizações desnecessárias
+const ParentComponent = () => {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Increment: {count}</button>
+      {/* Objeto inline criado a cada renderização, causando re-render do ExpensiveChild */}
+      <ExpensiveChild 
+        style={{ margin: 20, padding: 10 }} 
+        onClick={() => console.log('clicked')}
+        data={[1, 2, 3]} // Array inline, nova referência a cada render
+      />
+    </div>
+  );
+};
+
+// Ruim - Sobrecarga de memoização
+const SimpleComponent = ({ text }) => {
+  // Memoização desnecessária para operação simples
+  const processedText = useMemo(() => {
+    return text.toUpperCase();
+  }, [text]);
+  
+  // useCallback desnecessário para função simples
+  const handleClick = useCallback(() => {
+    console.log('Clicked!');
+  }, []);
+  
+  return <div onClick={handleClick}>{processedText}</div>;
+};
+</example>
+ 

@@ -1,0 +1,249 @@
+---
+description: Este conjunto de regras deve ser aplicado na arquitetura e estruturação de projetos React. Deve ser considerado sempre que: (1) Iniciando um novo projeto React, (2) Planejando a estrutura de diretórios, (3) Organizando componentes, (4) Implementando padrões de design, (5) Definindo convenções de código. A regra garante uma arquitetura escalável, manutenível e consistente para aplicações React, facilitando o trabalho em equipe e o crescimento organizado do projeto. É particularmente crucial ao definir a estrutura de pastas, convenções de nomenclatura, padrões arquiteturais e a organização geral do código.
+globs: 
+alwaysApply: false
+---
+
+# React Arquitetura e Padrões de Design
+
+## Regras Críticas
+
+### Estrutura de Diretórios
+
+- Organize o código por domínio/feature em vez de por tipo de arquivo
+- Mantenha arquivos relacionados próximos uns dos outros
+- Use uma estrutura modular que facilite a implementação de code-splitting
+- Siga o princípio de "proximidade de código" - arquivos frequentemente alterados juntos devem estar próximos
+- Utilize uma estrutura que facilite o teste unitário e de integração
+
+```
+src/
+  ├── assets/             # Imagens, fontes e outros arquivos estáticos
+  ├── common/             # Componentes, hooks e utilitários compartilhados
+  │   ├── components/     # Componentes reutilizáveis em todo o app
+  │   ├── hooks/          # Hooks customizados
+  │   ├── utils/          # Funções utilitárias
+  │   └── types/          # Tipos TypeScript compartilhados
+  ├── features/           # Organizado por domínio ou feature
+  │   ├── auth/           # Feature de autenticação
+  │   │   ├── components/ # Componentes específicos da feature
+  │   │   ├── hooks/      # Hooks da feature
+  │   │   ├── services/   # Serviços relacionados à feature
+  │   │   ├── types/      # Tipos TypeScript da feature
+  │   │   └── index.ts    # Ponto de entrada da feature
+  │   └── users/          # Feature de usuários
+  │       ├── ...         # Mesma estrutura que a feature anterior
+  ├── services/           # Serviços para comunicação com APIs
+  ├── store/              # Lógica de gerenciamento de estado global
+  └── App.tsx             # Componente raiz da aplicação
+```
+
+### Padrões de Design
+
+- **Atomic Design**: Organize componentes como átomos, moléculas, organismos, templates e páginas
+- **Feature-Sliced Design**: Divida o código em camadas (shared, entities, features, widgets, pages, processes, app)
+- **Compound Components**: Use para componentes complexos com subcomponentes relacionados
+- **Render Props / Hooks**: Prefira hooks a render props para compartilhar lógica
+- **Provider Pattern**: Use Context API para compartilhar dados entre componentes
+- **Container/Presentational**: Separe componentes de lógica (containers) dos de UI (presentacionais)
+- **Custom Hooks**: Extraia lógica reutilizável para hooks customizados
+- **Adapter Pattern**: Isole chamadas de API e serviços externos em adaptadores
+
+### Convenções de Nomenclatura
+
+- **Arquivos de Componentes**: Use PascalCase tanto para nome do arquivo quanto do componente (Button.tsx)
+- **Hooks**: Nomeie com prefixo "use" e camelCase (useAuth.ts)
+- **Contextos**: Use sufixo "Context" (UserContext.tsx)
+- **Utilitários**: Use camelCase para arquivos e funções (formatDate.ts)
+- **Tipos/Interfaces**: Use PascalCase com prefixo I para interfaces se desejado (IUser ou User)
+- **Constantes**: Use UPPER_SNAKE_CASE para constantes globais (API_URL)
+
+### Gerenciamento de Estado
+
+- Use estado local (useState/useReducer) para estado de componente
+- Utilize Context API para estado compartilhado entre componentes próximos
+- Para aplicações complexas, considere bibliotecas como Redux, Zustand ou Jotai
+- Organize o estado seguindo o princípio de única fonte de verdade
+- Evite prop drilling usando Context API ou composição de componentes
+- Implemente estratégias de cache para dados remotos (React Query, SWR)
+
+### Testes
+
+- Estruture testes próximos ao código que testam (\_\_tests\_\_ ao lado dos componentes)
+- Teste componentes de UI com testes de integração (React Testing Library)
+- Use testes unitários para lógica de negócios e funções utilitárias
+- Implemente testes E2E para fluxos críticos do usuário
+- Favoreça testes de comportamento sobre testes de implementação
+
+## Exemplos
+
+<example>
+// Bom - Estrutura de Componente Atômico
+// atoms/Button.tsx
+const Button = ({ children, variant = 'primary', size = 'medium', onClick }) => {
+  return (
+    <button 
+      className={`btn btn-${variant} btn-${size}`}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+};
+
+// Bom - Padrão de Provider e Hook
+// contexts/ThemeContext.tsx
+const ThemeContext = createContext();
+
+export const ThemeProvider = ({ children }) => {
+  const [theme, setTheme] = useState('light');
+  
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  };
+  
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+// hooks/useTheme.ts
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
+
+// Bom - Container/Presentational Pattern
+// containers/UserListContainer.tsx
+const UserListContainer = () => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const data = await userService.getUsers();
+        setUsers(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUsers();
+  }, []);
+  
+  return (
+    <UserList 
+      users={users}
+      loading={loading}
+      error={error}
+    />
+  );
+};
+
+// components/UserList.tsx
+const UserList = ({ users, loading, error }) => {
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage message={error} />;
+  
+  return (
+    <div className="user-list">
+      {users.map(user => (
+        <UserCard key={user.id} user={user} />
+      ))}
+    </div>
+  );
+};
+</example>
+
+<example type="invalid">
+// Ruim - Estrutura de diretórios por tipo
+src/
+  ├── components/         # Todos os componentes juntos
+  │   ├── Button.tsx
+  │   ├── UserProfile.tsx
+  │   ├── LoginForm.tsx
+  │   └── ... (dezenas de componentes)
+  ├── reducers/           # Todos os reducers juntos
+  ├── actions/            # Todas as actions juntas
+  ├── services/           # Todos os serviços juntos
+  └── utils/              # Todos os utilitários juntos
+
+// Ruim - Mistura de Responsabilidades
+// UserPage.tsx - Faz muitas coisas (fetch de dados, renderização, manipulação de formulário)
+const UserPage = () => {
+  const [userData, setUserData] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [newPostText, setNewPostText] = useState('');
+  
+  useEffect(() => {
+    fetch('/api/user')
+      .then(res => res.json())
+      .then(data => setUserData(data));
+      
+    fetch('/api/posts')
+      .then(res => res.json())
+      .then(data => setPosts(data));
+  }, []);
+  
+  const createPost = () => {
+    fetch('/api/posts', {
+      method: 'POST',
+      body: JSON.stringify({ text: newPostText }),
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(newPost => {
+        setPosts([newPost, ...posts]);
+        setNewPostText('');
+      });
+  };
+  
+  if (!userData) return <div>Loading...</div>;
+  
+  return (
+    <div>
+      <h1>{userData.name}'s Profile</h1>
+      
+      <form onSubmit={e => { e.preventDefault(); createPost(); }}>
+        <textarea 
+          value={newPostText}
+          onChange={e => setNewPostText(e.target.value)}
+        />
+        <button type="submit">Post</button>
+      </form>
+      
+      <div className="posts">
+        {posts.map(post => (
+          <div key={post.id} className="post">
+            <p>{post.text}</p>
+            <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+            <button onClick={() => {
+              // Lógica de like inline
+              fetch(`/api/posts/${post.id}/like`, { method: 'POST' })
+                .then(() => {
+                  setPosts(posts.map(p => 
+                    p.id === post.id 
+                      ? { ...p, likes: p.likes + 1 } 
+                      : p
+                  ));
+                });
+            }}>
+              Like ({post.likes})
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+</example>

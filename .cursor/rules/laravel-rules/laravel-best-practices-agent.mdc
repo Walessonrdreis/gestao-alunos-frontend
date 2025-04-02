@@ -1,0 +1,432 @@
+---
+description: Este conjunto de regras define as melhores práticas para desenvolvimento backend com Laravel. Deve ser considerado sempre que: (1) Iniciando um novo projeto Laravel, (2) Desenvolvendo APIs RESTful, (3) Implementando modelos e migrações, (4) Criando Controllers e serviços, (5) Configurando autenticação e autorização, (6) Escrevendo testes automatizados. A regra garante código limpo, seguro e de alta qualidade em projetos Laravel, promovendo manutenibilidade, performance e escalabilidade. É particularmente crucial ao definir a arquitetura do projeto, implementar regras de negócio e estabelecer padrões de código consistentes para toda a equipe.
+globs: 
+alwaysApply: false
+---
+
+# Melhores Práticas para Laravel
+
+## Arquitetura e Estrutura
+
+- Siga o padrão de arquitetura MVC (Model-View-Controller) com adição de Services e Repositories
+- Implemente Domain-Driven Design (DDD) para projetos complexos
+- Organize o código em módulos ou domínios para melhor separação de responsabilidades
+- Utilize Services para encapsular lógica de negócio complexa
+- Implemente Repositories para abstrair a camada de acesso a dados
+- Utilize DTOs (Data Transfer Objects) para transferência de dados entre camadas
+
+## Convenções de Nomenclatura
+
+- Use singular para nomes de Models: `User`, `Product`, `Category`
+- Use plural para nomes de tabelas: `users`, `products`, `categories`
+- Use plural para Controllers: `UsersController`, `ProductsController`
+- Use PascalCase para classes: `ProductService`, `UserRepository`
+- Use camelCase para métodos e variáveis: `getUserById()`, `$userInfo`
+- Use snake_case para colunas de banco de dados: `user_id`, `created_at`
+- Use kebab-case para rotas: `/api/user-profiles`, `/admin/user-management`
+
+## Modelos e Banco de Dados
+
+- Use Eloquent ORM para interações com o banco de dados
+- Defina relacionamentos explicitamente nos models: `hasMany()`, `belongsTo()`
+- Declare propriedades `$fillable` ou `$guarded` em todos os models
+- Implemente Soft Deletes para registros que não devem ser permanentemente excluídos
+- Use Accessors e Mutators para formatação de dados
+- Crie índices para colunas frequentemente consultadas
+- Use migrações para todas as alterações de esquema
+- Implemente factories e seeders para testes e desenvolvimento
+
+## Controllers
+
+- Mantenha controllers simples (princípio SOLID)
+- Use Resource Controllers para operações CRUD padrão
+- Implemente Form Requests para validação
+- Não coloque lógica de negócio nos controllers
+- Utilize o padrão de resposta consistente para APIs
+- Evite controllers com mais de 5 métodos públicos
+- Use injeção de dependência para acessar serviços
+
+## Rotas e API
+
+- Agrupe rotas relacionadas
+- Use middleware para autenticação e autorização
+- Implemente versionamento de API (v1, v2)
+- Siga padrões RESTful para endpoints de API
+- Use prefixos de namespace para organizar Controllers
+- Documente APIs usando Swagger ou ferramentas similares
+- Implemente rate limiting para prevenir abusos
+- Use transformers (como Laravel Fractal) para formatação de resposta
+
+## Autenticação e Autorização
+
+- Use Laravel Sanctum para autenticação de SPA e APIs
+- Implemente Policies para lógica de autorização
+- Use Gates para verificações de permissão específicas
+- Armazene senhas usando hashing seguro (bcrypt/Argon2)
+- Implemente autenticação de dois fatores quando necessário
+- Use tokens com escopo e expiração definidos
+- Teste cenários de segurança exaustivamente
+
+## Tratamento de Erros e Logging
+
+- Capture e registre exceções adequadamente
+- Customize páginas de erro
+- Use try-catch apenas quando necessário para tratamento específico
+- Configure níveis de log apropriados para diferentes ambientes
+- Implemente monitoramento de erros (Sentry, Bugsnag)
+- Retorne códigos HTTP corretos para cada situação
+- Forneça mensagens de erro úteis mas sem expor detalhes sensíveis
+
+## Performance e Otimização
+
+- Use cache para consultas frequentes e dados estáticos
+- Implemente lazy loading e eager loading conforme apropriado
+- Otimize consultas N+1 com `with()` e `load()`
+- Configure filas para operações assíncronas e processamento em lote
+- Use pagination para grandes conjuntos de dados
+- Implemente cache de rotas e configuração em produção
+- Monitore o uso de memória e tempo de resposta
+
+## Testes
+
+- Escreva testes unitários para Services e lógica de negócio
+- Implemente testes de integração para Controllers e Repositories
+- Use testes de feature para fluxos completos
+- Configure CI/CD para execução automática de testes
+- Mantenha cobertura de testes de pelo menos 70%
+- Use mocks e stubs para isolar dependências
+- Implemente seeding de banco de dados para testes
+
+## Segurança
+
+- Implemente validação em todas as entradas de usuário
+- Use CSRF protection para forms
+- Evite SQL injection usando queries parametrizadas
+- Proteja contra XSS sanitizando saídas
+- Configure CORS adequadamente para APIs
+- Implemente proteção contra ataques de força bruta
+- Siga as recomendações OWASP para desenvolvimento seguro
+
+## Boas Práticas Gerais
+
+- Siga as convenções PSR-1 e PSR-12 para estilo de código
+- Use injeção de dependência e containers IoC
+- Documente código complexo
+- Separe código de configuração do código de aplicação
+- Use variáveis de ambiente para configurações sensíveis
+- Escreva código autoexplicativo e evite comentários desnecessários
+- Mantenha o composer.json atualizado e organizado
+
+## Exemplos
+
+<example>
+// Exemplo de um Model bem estruturado
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Product extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'name', 'description', 'price', 'category_id', 'is_active'
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'is_active' => 'boolean',
+    ];
+
+    // Relacionamentos
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+
+    // Accessors e Mutators
+    public function getFormattedPriceAttribute()
+    {
+        return 'R$ ' . number_format($this->price, 2, ',', '.');
+    }
+
+    // Scopes
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+}
+
+// Exemplo de Repository para separação de responsabilidades
+namespace App\Repositories;
+
+use App\Models\Product;
+
+class ProductRepository
+{
+    protected $model;
+
+    public function __construct(Product $model)
+    {
+        $this->model = $model;
+    }
+
+    public function getAllActive($perPage = 15)
+    {
+        return $this->model->active()->with('category')->paginate($perPage);
+    }
+
+    public function findById($id)
+    {
+        return $this->model->findOrFail($id);
+    }
+
+    public function create(array $data)
+    {
+        return $this->model->create($data);
+    }
+
+    public function update($id, array $data)
+    {
+        $record = $this->findById($id);
+        $record->update($data);
+        return $record;
+    }
+
+    public function delete($id)
+    {
+        $record = $this->findById($id);
+        return $record->delete();
+    }
+}
+
+// Exemplo de Service com lógica de negócio
+namespace App\Services;
+
+use App\Repositories\ProductRepository;
+use App\Exceptions\InsufficientStockException;
+
+class ProductService
+{
+    protected $repository;
+
+    public function __construct(ProductRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
+    public function createProduct(array $data)
+    {
+        // Lógica de negócio adicional aqui
+        if (isset($data['price']) && $data['price'] < 0) {
+            $data['price'] = 0;
+        }
+
+        return $this->repository->create($data);
+    }
+
+    public function updateStock($productId, $quantity)
+    {
+        $product = $this->repository->findById($productId);
+        
+        if ($product->stock < $quantity) {
+            throw new InsufficientStockException("Produto {$product->name} não possui estoque suficiente.");
+        }
+        
+        return $this->repository->update($productId, [
+            'stock' => $product->stock - $quantity
+        ]);
+    }
+}
+
+// Exemplo de Controller limpo com injeção de dependência
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductRequest;
+use App\Services\ProductService;
+use App\Http\Resources\ProductResource;
+
+class ProductsController extends Controller
+{
+    protected $service;
+
+    public function __construct(ProductService $service)
+    {
+        $this->service = $service;
+    }
+
+    public function index()
+    {
+        $products = $this->service->getAllActive();
+        return ProductResource::collection($products);
+    }
+
+    public function store(ProductRequest $request)
+    {
+        $product = $this->service->createProduct($request->validated());
+        return new ProductResource($product);
+    }
+
+    public function show($id)
+    {
+        $product = $this->service->getById($id);
+        return new ProductResource($product);
+    }
+
+    public function update(ProductRequest $request, $id)
+    {
+        $product = $this->service->updateProduct($id, $request->validated());
+        return new ProductResource($product);
+    }
+
+    public function destroy($id)
+    {
+        $this->service->deleteProduct($id);
+        return response()->json(null, 204);
+    }
+}
+
+// Exemplo de organização de rotas
+// routes/api.php
+Route::prefix('v1')->namespace('API')->middleware('auth:sanctum')->group(function () {
+    Route::apiResource('products', 'ProductsController');
+    Route::apiResource('categories', 'CategoriesController');
+    
+    Route::prefix('admin')->middleware('can:manage-products')->group(function () {
+        Route::patch('products/{id}/restore', 'ProductsController@restore');
+        Route::get('statistics', 'StatisticsController@index');
+    });
+});
+
+// Exemplo de Form Request para validação
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class ProductRequest extends FormRequest
+{
+    public function authorize()
+    {
+        return $this->user()->can('manage', 'products');
+    }
+
+    public function rules()
+    {
+        $rules = [
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'is_active' => 'boolean',
+        ];
+        
+        // Regras adicionais para atualização
+        if ($this->isMethod('PATCH') || $this->isMethod('PUT')) {
+            $rules = array_map(function ($rule) {
+                return str_replace('required|', '', $rule);
+            }, $rules);
+        }
+        
+        return $rules;
+    }
+}
+</example>
+
+<example type="invalid">
+// ❌ Model sem proteção contra mass assignment
+class Product extends Model
+{
+    // Sem $fillable ou $guarded - vulnerável a mass assignment
+    
+    // ❌ Lógica de negócio no Model
+    public function applyDiscount($percentage)
+    {
+        $this->price = $this->price - ($this->price * $percentage / 100);
+        $this->save();
+        
+        // Enviar e-mail sobre desconto
+        Mail::to('admin@example.com')->send(new DiscountApplied($this));
+        
+        return $this;
+    }
+}
+
+// ❌ Controller com lógica de negócio
+class ProductController extends Controller
+{
+    public function store(Request $request)
+    {
+        // ❌ Validação diretamente no controller
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+        ]);
+        
+        // ❌ Lógica de negócio no controller
+        $product = new Product();
+        $product->name = $request->name;
+        $product->price = $request->price < 0 ? 0 : $request->price;
+        $product->save();
+        
+        // ❌ Formatação de resposta no controller
+        return response()->json([
+            'id' => $product->id,
+            'name' => $product->name,
+            'formatted_price' => 'R$ ' . number_format($product->price, 2, ',', '.'),
+            'created_at' => $product->created_at->format('d/m/Y')
+        ]);
+    }
+    
+    // ❌ Controller com muitos métodos
+    public function index() { /* ... */ }
+    public function create() { /* ... */ }
+    public function store() { /* ... */ }
+    public function show() { /* ... */ }
+    public function edit() { /* ... */ }
+    public function update() { /* ... */ }
+    public function destroy() { /* ... */ }
+    public function restore() { /* ... */ }
+    public function forceDelete() { /* ... */ }
+    public function export() { /* ... */ }
+    public function import() { /* ... */ }
+    public function generateReport() { /* ... */ }
+}
+
+// ❌ Query N+1 problem
+public function index()
+{
+    $products = Product::all(); // Carrega todos os produtos
+    
+    foreach ($products as $product) {
+        echo $product->category->name; // Nova query para cada produto
+    }
+}
+
+// ❌ Rotas não agrupadas e sem versionamento
+// routes/api.php
+Route::post('/product', 'ProductController@store');
+Route::get('/product/{id}', 'ProductController@show');
+Route::post('/category', 'CategoryController@store');
+Route::post('/login', 'AuthController@login');
+
+// ❌ SQL injection vulnerável
+public function findByName($name)
+{
+    return DB::select("SELECT * FROM products WHERE name LIKE '%$name%'");
+}
+
+// ❌ Credenciais hardcoded
+public function connectToExternalService()
+{
+    $client = new Client('https://api.example.com', 'username', 'p@ssw0rd');
+    return $client->getData();
+}
+</example> 
