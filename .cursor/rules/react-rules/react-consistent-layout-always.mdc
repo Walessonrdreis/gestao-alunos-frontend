@@ -1,0 +1,661 @@
+---
+description: Este conjunto de regras define padrões para implementação consistente de layouts e estilos em todas as telas de um projeto React. Deve ser seguido sempre que: (1) Criando novas telas ou componentes, (2) Modificando layouts existentes, (3) Implementando estilos para qualquer parte da aplicação, (4) Refatorando componentes visuais, (5) Adicionando novos requisitos de UI. A regra garante consistência visual, experiência de usuário coesa e facilita a manutenção da aplicação ao longo do tempo. É particularmente crucial em projetos com múltiplas telas e fluxos de usuário onde a coerência visual é essencial para uma experiência fluida.
+globs: 
+alwaysApply: true
+---
+
+# Implementação Consistente de Layout e Estilos
+
+## Regras Críticas
+
+### Design System e Tokens
+
+- **SEMPRE** defina e utilize um design system centralizado com tokens para todas as propriedades visuais
+- Crie um arquivo de tokens CSS/SCSS no início do projeto com:
+  - Paleta de cores (primárias, secundárias, neutras, feedback)
+  - Tipografia (famílias, tamanhos, pesos, alturas de linha)
+  - Espaçamentos (padding, margin, gaps)
+  - Bordas e arredondamentos
+  - Sombras e elevações
+  - Breakpoints para responsividade
+  - Transições e animações
+- Utilize CSS variables ou um pré-processador para definir estes tokens
+- Nunca utilize valores hardcoded; sempre referencie tokens do design system
+- Documente o significado e uso correto de cada token
+
+### Componentes de Layout Base
+
+- Crie e utilize componentes base de layout para estruturar todas as telas:
+  - Containers (`Container`, `Section`, `Card`)
+  - Grids (`Grid`, `Row`, `Column`)
+  - Flexbox helpers (`FlexRow`, `FlexColumn`)
+  - Espaçadores (`Spacer`, `Divider`)
+- Os componentes base devem ser configuráveis via props para flexibilidade
+- Mantenha consistência nas proporções e alinhamentos entre todas as telas
+- Implemente layouts responsivos que se adaptam a todos os tamanhos de tela definidos
+- Defina templates reutilizáveis para padrões comuns (lista, detalhes, formulários, dashboard)
+
+### Consistência Entre Telas
+
+- Toda nova tela deve seguir os templates e padrões existentes
+- Mantenha consistência em:
+  - Posição de elementos comuns (header, navegação, footer)
+  - Espaçamento entre elementos
+  - Hierarquia visual e fluxo de leitura
+  - Feedback visual para interações (hover, focus, loading)
+- Implemente uma estrutura de página padronizada com áreas definidas
+- Realize "auditorias visuais" regulares para garantir adesão aos padrões
+
+### Implementação Técnica
+
+- Utilize CSS Modules, Styled Components ou outra solução para estilos encapsulados
+- Separe estilos por:
+  - Globais (resets, utilitários, variáveis)
+  - Componentes (estilos específicos para cada componente)
+  - Templates (layouts para tipos específicos de página)
+  - Temas (variações visuais do design system)
+- Implemente Media Queries consistentes com os mesmos breakpoints em toda a aplicação
+- Adote a abordagem Mobile First em todas as implementações
+- Use técnicas modernas como CSS Grid e Flexbox de forma consistente
+
+### Componentes de UI Compartilhados
+
+- Crie uma biblioteca de componentes UI reutilizáveis:
+  - Botões (primário, secundário, terciário)
+  - Campos de formulário (input, select, checkbox, radio)
+  - Feedback (alerts, toasts, badges)
+  - Navegação (menus, breadcrumbs, tabs)
+  - Modal e diálogos
+  - Cards e containers
+- Todos os componentes devem seguir o mesmo padrão visual e comportamental
+- Implemente variações como props em vez de criar componentes separados
+- Documente todas as props e variações possíveis
+
+### Responsividade e Adaptabilidade
+
+- Defina breakpoints consistentes para todos os tamanhos de tela
+- Crie utilitários de media query reutilizáveis
+- Teste todas as telas em múltiplos dispositivos antes de finalizar
+- Garanta que o conteúdo seja acessível e usável em qualquer dispositivo
+- Implemente estratégias para:
+  - Navegação responsiva
+  - Imagens responsivas 
+  - Tabelas responsivas
+  - Tipografia fluida
+
+### Documentação e Guia de Estilos
+
+- Mantenha uma documentação viva do design system, acessível a toda a equipe
+- Inclua:
+  - Inventário de todos os componentes com exemplos
+  - Regras de uso para cada componente
+  - Guia de implementação para desenvolvedores
+  - Exemplos de layouts típicos
+- Atualize a documentação sempre que novos padrões forem adicionados
+- Utilize ferramentas como Storybook para visualizar e testar componentes
+
+### Processo de Implementação
+
+- Antes de criar uma nova tela:
+  1. Analise os padrões existentes e componentes disponíveis
+  2. Identifique componentes similares que podem ser reutilizados ou estendidos
+  3. Construa um protótipo usando componentes existentes
+  4. Identifique lacunas no design system atual
+- Para cada nova tela:
+  1. Implemente primeiro a estrutura básica de layout
+  2. Adicione componentes compartilhados existentes
+  3. Crie novos componentes apenas quando necessário
+  4. Garanta que novos componentes sigam o design system
+
+## Exemplos
+
+<example>
+// 1. DEFINIÇÃO DE DESIGN SYSTEM CENTRALIZADO
+
+// src/styles/tokens.css
+:root {
+  /* Cores principais */
+  --color-primary-50: #e6f0ff;
+  --color-primary-100: #cce0ff;
+  --color-primary-200: #99c2ff;
+  --color-primary-300: #66a3ff;
+  --color-primary-400: #3385ff;
+  --color-primary-500: #0066ff; /* Cor principal */
+  --color-primary-600: #0052cc;
+  --color-primary-700: #003d99;
+  --color-primary-800: #002966;
+  --color-primary-900: #001433;
+  
+  /* Cores neutras */
+  --color-neutral-50: #f8f9fa;
+  --color-neutral-100: #f1f3f5;
+  --color-neutral-200: #e9ecef;
+  --color-neutral-300: #dee2e6;
+  --color-neutral-400: #ced4da;
+  --color-neutral-500: #adb5bd;
+  --color-neutral-600: #6c757d;
+  --color-neutral-700: #495057;
+  --color-neutral-800: #343a40;
+  --color-neutral-900: #212529;
+  
+  /* Cores de feedback */
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+  --color-info: #17a2b8;
+  
+  /* Tipografia */
+  --font-family-base: 'Inter', system-ui, sans-serif;
+  --font-family-heading: 'Poppins', var(--font-family-base);
+  
+  /* Tamanhos de texto */
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-sm: 0.875rem;  /* 14px */
+  --font-size-md: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;  /* 18px */
+  --font-size-xl: 1.25rem;   /* 20px */
+  --font-size-2xl: 1.5rem;   /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem;  /* 36px */
+  
+  /* Pesos de fonte */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Altura de linha */
+  --line-height-tight: 1.25;
+  --line-height-base: 1.5;
+  --line-height-loose: 1.75;
+  
+  /* Espaçamentos */
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;  /* 4px */
+  --spacing-2: 0.5rem;   /* 8px */
+  --spacing-3: 0.75rem;  /* 12px */
+  --spacing-4: 1rem;     /* 16px */
+  --spacing-5: 1.25rem;  /* 20px */
+  --spacing-6: 1.5rem;   /* 24px */
+  --spacing-8: 2rem;     /* 32px */
+  --spacing-10: 2.5rem;  /* 40px */
+  --spacing-12: 3rem;    /* 48px */
+  --spacing-16: 4rem;    /* 64px */
+  
+  /* Bordas */
+  --border-radius-sm: 0.125rem; /* 2px */
+  --border-radius-md: 0.25rem;  /* 4px */
+  --border-radius-lg: 0.5rem;   /* 8px */
+  --border-radius-xl: 1rem;     /* 16px */
+  --border-radius-full: 9999px;
+  
+  /* Sombras */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-medium: 300ms ease-in-out;
+  --transition-slow: 500ms ease-in-out;
+}
+
+// 2. COMPONENTES DE LAYOUT BASE
+
+// src/components/layout/Container.jsx
+const Container = ({ 
+  children, 
+  fluid = false,
+  className = '',
+  ...rest 
+}) => {
+  return (
+    <div 
+      className={`container ${fluid ? 'container--fluid' : ''} ${className}`}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+};
+
+// src/components/layout/Grid.jsx
+const Grid = ({ 
+  children, 
+  columns = 12,
+  gap = 'md',
+  className = '',
+  ...rest 
+}) => {
+  const gapMap = {
+    xs: 'var(--spacing-1)',
+    sm: 'var(--spacing-2)',
+    md: 'var(--spacing-4)',
+    lg: 'var(--spacing-6)',
+    xl: 'var(--spacing-8)',
+  };
+  
+  return (
+    <div 
+      className={`grid ${className}`}
+      style={{ 
+        display: 'grid',
+        gridTemplateColumns: `repeat(${columns}, 1fr)`,
+        gap: gapMap[gap] || gap 
+      }}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+};
+
+// 3. PÁGINA COM LAYOUT CONSISTENTE
+
+// src/pages/UserProfilePage.jsx
+const UserProfilePage = ({ userId }) => {
+  // Lógica e estado aqui...
+  
+  return (
+    <PageTemplate 
+      title="Perfil do Usuário"
+      breadcrumbs={[
+        { label: 'Home', url: '/' },
+        { label: 'Usuários', url: '/users' },
+        { label: 'Perfil', url: `/users/${userId}` }
+      ]}
+    >
+      <Container>
+        <Grid columns={12} gap="lg">
+          {/* Sidebar - 3 colunas em desktop, full em mobile */}
+          <GridItem span={12} md={3}>
+            <Card>
+              <UserProfile userId={userId} />
+            </Card>
+          </GridItem>
+          
+          {/* Conteúdo principal - 9 colunas em desktop, full em mobile */}
+          <GridItem span={12} md={9}>
+            <VerticalStack gap="lg">
+              <Card>
+                <CardHeader>
+                  <Heading level={3}>Atividades Recentes</Heading>
+                </CardHeader>
+                <CardContent>
+                  <ActivityList userId={userId} />
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <Heading level={3}>Estatísticas</Heading>
+                </CardHeader>
+                <CardContent>
+                  <UserStats userId={userId} />
+                </CardContent>
+              </Card>
+            </VerticalStack>
+          </GridItem>
+        </Grid>
+      </Container>
+    </PageTemplate>
+  );
+};
+
+// 4. COMPONENTES UI CONSISTENTES COM VARIAÇÕES
+
+// src/components/ui/Button.jsx
+const Button = ({ 
+  children, 
+  variant = 'primary', 
+  size = 'md',
+  fullWidth = false,
+  isLoading = false,
+  disabled = false,
+  leftIcon,
+  rightIcon,
+  onClick,
+  className = '',
+  ...rest 
+}) => {
+  const variantClasses = {
+    primary: 'btn--primary',
+    secondary: 'btn--secondary',
+    tertiary: 'btn--tertiary',
+    danger: 'btn--danger',
+    ghost: 'btn--ghost'
+  };
+  
+  const sizeClasses = {
+    sm: 'btn--sm',
+    md: 'btn--md',
+    lg: 'btn--lg'
+  };
+  
+  return (
+    <button
+      className={`
+        btn 
+        ${variantClasses[variant] || variantClasses.primary}
+        ${sizeClasses[size] || sizeClasses.md}
+        ${fullWidth ? 'btn--full-width' : ''}
+        ${isLoading ? 'btn--loading' : ''}
+        ${className}
+      `}
+      disabled={disabled || isLoading}
+      onClick={onClick}
+      {...rest}
+    >
+      {isLoading && <Spinner size="sm" className="btn__spinner" />}
+      {leftIcon && !isLoading && <span className="btn__icon btn__icon--left">{leftIcon}</span>}
+      <span className="btn__text">{children}</span>
+      {rightIcon && !isLoading && <span className="btn__icon btn__icon--right">{rightIcon}</span>}
+    </button>
+  );
+};
+
+// 5. ESTILOS CONSISTENTES COM CSS MODULES
+
+// src/components/ui/Button.module.css
+.btn {
+  /* Base styles */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: none;
+  position: relative;
+  text-decoration: none;
+}
+
+.btn--primary {
+  background-color: var(--color-primary-500);
+  color: white;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background-color: var(--color-primary-600);
+}
+
+.btn--primary:active:not(:disabled) {
+  background-color: var(--color-primary-700);
+}
+
+/* Outros estilos para variantes, tamanhos, estados */
+
+/* Media queries para responsividade */
+@media (max-width: var(--breakpoint-sm)) {
+  .btn--sm {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-1) var(--spacing-2);
+  }
+  
+  .btn--md {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-2) var(--spacing-3);
+  }
+  
+  .btn--lg {
+    font-size: var(--font-size-md);
+    padding: var(--spacing-2) var(--spacing-4);
+  }
+}
+
+// 6. TEMA ALTERNATIVO USANDO O MESMO DESIGN SYSTEM
+
+// src/styles/theme-dark.css
+:root[data-theme="dark"] {
+  /* Cores principais (versão dark) */
+  --color-primary-50: #003d99;
+  --color-primary-100: #0052cc;
+  --color-primary-200: #0066ff;
+  --color-primary-300: #3385ff;
+  --color-primary-400: #66a3ff;
+  --color-primary-500: #99c2ff; /* Cor principal no dark theme */
+  --color-primary-600: #cce0ff;
+  --color-primary-700: #e6f0ff;
+  
+  /* Cores neutras (versão dark) */
+  --color-neutral-50: #212529;
+  --color-neutral-100: #343a40;
+  --color-neutral-200: #495057;
+  --color-neutral-300: #6c757d;
+  --color-neutral-400: #adb5bd;
+  --color-neutral-800: #f1f3f5;
+  --color-neutral-900: #f8f9fa;
+  
+  /* Cores de background e texto */
+  --color-bg-primary: #121212;
+  --color-bg-secondary: #1e1e1e;
+  --color-bg-tertiary: #2c2c2c;
+  --color-text-primary: #f1f3f5;
+  --color-text-secondary: #adb5bd;
+  
+  /* Sombras ajustadas para dark mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+}
+</example>
+
+<example type="invalid">
+// ❌ INCONSISTÊNCIA DE VALORES DE ESTILO
+
+// Arquivo Component1.js - usando valores diretos
+const Component1 = () => {
+  return (
+    <div style={{ padding: '15px', backgroundColor: '#007bff', borderRadius: '4px' }}>
+      <h2 style={{ fontSize: '22px', color: 'white' }}>Título</h2>
+      <p style={{ fontSize: '14px' }}>Conteúdo</p>
+    </div>
+  );
+};
+
+// Arquivo Component2.js - usando valores diferentes
+const Component2 = () => {
+  return (
+    <div style={{ padding: '16px', backgroundColor: '#0066cc', borderRadius: '5px' }}>
+      <h2 style={{ fontSize: '24px', color: '#fff' }}>Título</h2>
+      <p style={{ fontSize: '15px' }}>Conteúdo</p>
+    </div>
+  );
+};
+
+// ❌ SEM COMPONENTES DE LAYOUT REUTILIZÁVEIS
+
+// Cada página cria sua própria estrutura de layout do zero
+const UserPage = () => (
+  <div className="page-container">
+    <header>
+      <h1>Usuários</h1>
+    </header>
+    <div className="content-area">
+      <div className="sidebar">
+        {/* Conteúdo da sidebar */}
+      </div>
+      <div className="main-content">
+        {/* Conteúdo principal */}
+      </div>
+    </div>
+  </div>
+);
+
+// Outra página com estrutura completamente diferente
+const ProductPage = () => (
+  <div>
+    <div className="product-header">
+      <h1>Produtos</h1>
+    </div>
+    <div className="product-grid">
+      {/* Lista de produtos */}
+    </div>
+  </div>
+);
+
+// ❌ MISTURA DE ABORDAGENS DE ESTILIZAÇÃO
+
+// Arquivo usando styled-components
+import styled from 'styled-components';
+
+const Button = styled.button`
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  
+  &:hover {
+    background-color: #0069d9;
+  }
+`;
+
+// Arquivo usando CSS modules
+import styles from './AnotherButton.module.css';
+
+const AnotherButton = (props) => (
+  <button className={styles.button} {...props}>
+    {props.children}
+  </button>
+);
+
+// Arquivo usando estilos inline
+const YetAnotherButton = (props) => (
+  <button 
+    style={{
+      backgroundColor: '#007bff',
+      color: 'white',
+      padding: '10px 15px',
+      border: 'none',
+      borderRadius: '4px'
+    }} 
+    {...props}
+  >
+    {props.children}
+  </button>
+);
+
+// ❌ RESPONSIVIDADE INCONSISTENTE
+
+// Um componente com breakpoints personalizados
+const Card = () => (
+  <div className="card">
+    <style jsx>{`
+      .card {
+        width: 100%;
+      }
+      
+      @media (min-width: 576px) {
+        .card {
+          width: 80%;
+        }
+      }
+      
+      @media (min-width: 992px) {
+        .card {
+          width: 60%;
+        }
+      }
+    `}</style>
+    {/* Conteúdo */}
+  </div>
+);
+
+// Outro componente com breakpoints diferentes
+const ProductCard = () => (
+  <div className="product-card">
+    <style jsx>{`
+      .product-card {
+        width: 100%;
+      }
+      
+      @media (min-width: 600px) {
+        .product-card {
+          width: 50%;
+        }
+      }
+      
+      @media (min-width: 1024px) {
+        .product-card {
+          width: 33.333%;
+        }
+      }
+    `}</style>
+    {/* Conteúdo */}
+  </div>
+);
+
+// ❌ BOTÕES INCONSISTENTES
+
+// Um componente de botão
+const PrimaryButton = ({ children, onClick }) => (
+  <button 
+    className="primary-button"
+    onClick={onClick}
+  >
+    {children}
+  </button>
+);
+
+// CSS sem relação com outros botões
+.primary-button {
+  background-color: blue;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+// Outro botão em outro arquivo com estilo diferente
+const ActionButton = ({ children, onClick }) => (
+  <button 
+    className="action-button"
+    onClick={onClick}
+  >
+    {children}
+  </button>
+);
+
+// CSS com valores diferentes
+.action-button {
+  background-color: #0066ff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+// ❌ FALTA DE TEMPLATE PARA PÁGINAS
+
+// Cada página implementa seu próprio header, footer e navegação
+const Page1 = () => (
+  <div>
+    <header className="header">
+      <nav>{/* Navegação */}</nav>
+    </header>
+    <main>{/* Conteúdo */}</main>
+    <footer className="footer">{/* Footer */}</footer>
+  </div>
+);
+
+// Outra página com diferente estrutura de header
+const Page2 = () => (
+  <div>
+    <div className="top-bar">
+      <div className="logo">Logo</div>
+      <nav className="top-nav">{/* Navegação diferente */}</nav>
+    </div>
+    <main>{/* Conteúdo */}</main>
+    <div className="bottom-bar">{/* Footer diferente */}</div>
+  </div>
+);
+</example> 
