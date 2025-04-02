@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   
@@ -8,9 +10,9 @@ const Footer = () => {
           <div className="col-md-4 mb-3 mb-md-0">
             <h5 className="text-uppercase">Links Úteis</h5>
             <ul className="list-unstyled">
-              <li><a href="#" className="text-decoration-none">Suporte</a></li>
-              <li><a href="#" className="text-decoration-none">Documentação</a></li>
-              <li><a href="#" className="text-decoration-none">FAQ</a></li>
+              <li><Link to="/suporte" className="text-decoration-none">Suporte</Link></li>
+              <li><Link to="/documentacao" className="text-decoration-none">Documentação</Link></li>
+              <li><Link to="/faq" className="text-decoration-none">FAQ</Link></li>
             </ul>
           </div>
           
@@ -25,16 +27,16 @@ const Footer = () => {
           <div className="col-md-4">
             <h5 className="text-uppercase">Redes Sociais</h5>
             <div className="d-flex justify-content-center gap-3 fs-3">
-              <a href="#" className="text-decoration-none">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
                 <i className="fab fa-facebook"></i>
               </a>
-              <a href="#" className="text-decoration-none">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
                 <i className="fab fa-instagram"></i>
               </a>
-              <a href="#" className="text-decoration-none">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
                 <i className="fab fa-twitter"></i>
               </a>
-              <a href="#" className="text-decoration-none">
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-decoration-none">
                 <i className="fab fa-linkedin"></i>
               </a>
             </div>

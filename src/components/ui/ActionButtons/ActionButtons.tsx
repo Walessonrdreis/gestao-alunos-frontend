@@ -103,9 +103,11 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
     if (onPdf) {
       onPdf();
     } else {
-      // Abrir em nova aba com URL completa.
+      // Obter BASE_PATH a partir da configuração do vite ou usar o valor padrão
+      const BASE_PATH = '/applications/escola';
+      // Abrir em nova aba com URL completa, incluindo o caminho base
       const baseUrl = window.location.origin;
-      window.open(`${baseUrl}/aluno/agenda/${id}`, '_blank');
+      window.open(`${baseUrl}${BASE_PATH}/aluno/agenda/${id}`, '_blank');
     }
   };
 
