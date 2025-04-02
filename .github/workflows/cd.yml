@@ -32,7 +32,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
-          protocol: ftps-explicit
+          protocol: ftps
           local-dir: ./dist/
           server-dir: public_html/applications/escola/
           dangerous-clean-slate: true
