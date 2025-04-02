@@ -1,0 +1,181 @@
+/**
+ * Estilos para as páginas de autenticação
+ * Corresponde exatamente aos estilos do frontend PHP
+ */
+
+/* Importação de fontes */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Variáveis de design */
+:root {
+  --primary-color: #0066cc; /* Cor primária utilizada em botões e links */
+  --primary-hover: #0052a3; /* Cor de hover para a cor primária */
+  --secondary-color: #6c757d; /* Cor secundária para elementos de suporte */
+  --success-color: #28a745; /* Cor para indicar sucesso */
+  --danger-color: #dc3545; /* Cor para indicar erro ou perigo */
+  --warning-color: #ffc107; /* Cor para avisos */
+  --info-color: #17a2b8; /* Cor para informações */
+  --light-color: #f8f9fa; /* Cor de fundo clara */
+  --dark-color: #343a40; /* Cor escura para textos */
+  --body-bg: #f0f2f5; /* Cor de fundo do corpo */
+  --text-color: #212529; /* Cor do texto principal */
+  --text-muted: #6c757d; /* Cor para texto secundário */
+  --border-color: #dee2e6; /* Cor padrão para bordas */
+  --border-radius: 0.375rem; /* Raio de borda padrão */
+  --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* Sombra padrão */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* Fonte padrão */
+}
+
+/* Estilos gerais */
+body {
+  font-family: var(--font-family); /* Fonte padrão para o corpo */
+  background-color: var(--body-bg); /* Cor de fundo do corpo */
+  color: var(--text-color); /* Cor do texto */
+  line-height: 1.5; /* Altura da linha para melhor legibilidade */
+}
+
+/* Estilos específicos para cards de autenticação */
+.card {
+  border-radius: 0.75rem; /* Raio de borda para o card */
+  overflow: hidden; /* Ocultar conteúdo que ultrapassa o card */
+  min-width: 400px; /* Largura mínima do card */
+  width: 100%; /* Largura total do card */
+  max-width: 500px; /* Largura máxima do card */
+  margin: 0 auto; /* Centralizar o card */
+}
+
+.card-header {
+  border-bottom: none;
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+/* Centralização de containers de autenticação */
+.min-vh-100 .col-md-6,
+.min-vh-100 .col-lg-5,
+.min-vh-100 .col-md-8,
+.min-vh-100 .col-lg-6 {
+  display: flex;
+  justify-content: center;
+  min-width: 400px !important;
+  width: 100%;
+}
+
+/* Estilos de campos de formulário */
+.form-control, .form-select {
+  border-radius: 0.5rem; /* Raio de borda para campos de formulário */
+  padding: 0.75rem 1rem; /* Padding para campos de formulário */
+  border: 1px solid var(--border-color); /* Borda padrão */
+  transition: border-color 0.2s, box-shadow 0.2s; /* Transição suave para foco */
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color); /* Cor da borda ao focar */
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15); /* Sombra ao focar */
+}
+
+.form-floating label {
+  padding-left: 1rem;
+  color: var(--text-muted);
+}
+
+.form-floating>.form-control {
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Botões */
+.btn {
+  padding: 0.75rem 1.5rem; /* Padding para botões */
+  border-radius: 0.5rem; /* Raio de borda para botões */
+  font-weight: 500; /* Peso da fonte para botões */
+  transition: all 0.2s; /* Transição suave para botões */
+}
+
+.btn-primary {
+  background-color: var(--primary-color); /* Cor de fundo para botões primários */
+  border-color: var(--primary-color); /* Cor da borda para botões primários */
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover); /* Cor de fundo ao passar o mouse */
+  border-color: var(--primary-hover); /* Cor da borda ao passar o mouse */
+}
+
+.btn-primary:focus {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Alertas */
+.alert {
+  border-radius: 0.5rem; /* Raio de borda para alertas */
+  font-size: 0.9rem; /* Tamanho da fonte para alertas */
+  padding: 0.75rem 1rem; /* Padding para alertas */
+}
+
+/* Ícones */
+.fa-graduation-cap {
+  color: var(--primary-color);
+}
+
+/* Links */
+a {
+  text-decoration: none; /* Remover sublinhado padrão */
+  transition: color 0.2s; /* Transição suave para a cor do link */
+}
+
+a:hover {
+  text-decoration: underline; /* Adicionar sublinhado ao passar o mouse */
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1.5rem; /* Padding reduzido para telas menores */
+  }
+  
+  .min-vh-100 {
+    min-height: calc(100vh - 2rem) !important; /* Altura mínima para telas menores */
+  }
+  
+  .card {
+    min-width: 350px; /* Largura mínima do card */
+    width: 95%; /* Largura total do card */
+  }
+}
+
+/* Elementos de animação */
+.fade-in {
+  animation: fadeIn 0.3s ease-in; /* Animação de fade-in */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); } /* Animação de entrada */
+  to { opacity: 1; transform: translateY(0); } /* Animação de saída */
+}
+
+/* Estilo do checkbox */
+.form-check-input {
+  cursor: pointer;
+}
+
+.form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Sombras e efeitos */
+.shadow-lg {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Hover em botões */
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+} 

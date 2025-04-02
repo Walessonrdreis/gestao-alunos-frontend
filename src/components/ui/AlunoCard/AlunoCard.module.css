@@ -1,0 +1,193 @@
+/**
+ * Estilos para o componente AlunoCard
+ * Apresenta as informações do aluno em formato de cartão
+ */
+
+/* -----------------------------------------------------------------------------
+ * Componente principal
+ * -------------------------------------------------------------------------- */
+.alunoCard {
+  /* Posicionamento */
+  position: relative;
+  
+  /* Box model */
+  border-radius: 0.5rem;
+  overflow: hidden;
+  
+  /* Visual */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.alunoCard:hover {
+  /* Visual */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+}
+
+/* -----------------------------------------------------------------------------
+ * Elementos de texto
+ * -------------------------------------------------------------------------- */
+.alunoNome {
+  /* Tipografia */
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  
+  /* Box model */
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  
+  /* Visual */
+  border-bottom: 1px solid #eee;
+}
+
+.matriculaContainer {
+  /* Box model */
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.matriculaLabel {
+  /* Tipografia */
+  font-weight: 500;
+  color: #666;
+  
+  /* Box model */
+  margin-right: 0.5rem;
+}
+
+.matriculaValor {
+  /* Tipografia */
+  font-weight: 600;
+  color: #333;
+}
+
+.alunoEscola,
+.alunoTelefone,
+.disciplina,
+.proximaAula {
+  /* Box model */
+  margin-bottom: 0.5rem;
+  
+  /* Tipografia */
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.alunoEscola i,
+.alunoTelefone i,
+.disciplina i,
+.proximaAula i {
+  /* Box model */
+  width: 20px;
+  
+  /* Visual */
+  color: var(--primary-color);
+  opacity: 0.7;
+}
+
+.proximaAula {
+  /* Tipografia */
+  font-weight: 500;
+}
+
+/* -----------------------------------------------------------------------------
+ * Ações do card
+ * -------------------------------------------------------------------------- */
+.alunoActions {
+  /* Box model */
+  margin-top: 1rem;
+  padding-top: 1rem;
+  
+  /* Visual */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-top: 1px solid #eee;
+}
+
+.alunoActions.show {
+  /* Visual */
+  opacity: 1;
+}
+
+.alunoActions :global(.action-buttons) {
+  /* Box model */
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* -----------------------------------------------------------------------------
+ * Estados do card
+ * -------------------------------------------------------------------------- */
+.alunoCardLoading {
+  /* Box model */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 150px;
+}
+
+.alunoCardError {
+  /* Tipografia */
+  color: var(--danger-color);
+  font-size: 0.9rem;
+  text-align: center;
+  
+  /* Box model */
+  padding: 1rem;
+  
+  /* Visual */
+  background-color: rgba(231, 74, 59, 0.1);
+  border-radius: 0.5rem;
+}
+
+.alunoInfo {
+  /* Box model */
+  margin-bottom: 1rem;
+}
+
+/* -----------------------------------------------------------------------------
+ * Media queries para responsividade
+ * -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .alunoActions {
+    /* Visual */
+    opacity: 1;
+  }
+  
+  .alunoActions :global(.action-buttons) {
+    /* Box model */
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .alunoActions :global(.btn-action-icon) {
+    /* Box model */
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .alunoCard {
+    /* Box model */
+    margin-bottom: 1rem;
+  }
+  
+  .alunoNome {
+    /* Tipografia */
+    font-size: 1.1rem;
+  }
+  
+  .matriculaContainer,
+  .alunoEscola,
+  .alunoTelefone,
+  .disciplina,
+  .proximaAula {
+    /* Tipografia */
+    font-size: 0.85rem;
+  }
+} 

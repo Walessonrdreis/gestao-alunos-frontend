@@ -1,0 +1,153 @@
+/**
+ * Estilos principais para o frontend React
+ * Replicando exatamente os estilos do frontend PHP
+ */
+
+/* Importação de fontes */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Variáveis de design */
+:root {
+  --primary-color: #0066cc; /* Cor primária utilizada em botões e links */
+  --primary-hover: #0052a3; /* Cor de hover para a cor primária */
+  --secondary-color: #6c757d; /* Cor secundária para elementos de suporte */
+  --success-color: #28a745; /* Cor para indicar sucesso */
+  --danger-color: #dc3545; /* Cor para indicar erro ou perigo */
+  --light-bg: #f8f9fa; /* Cor de fundo clara */
+  --border-color: #dee2e6; /* Cor padrão para bordas */
+  --text-color: #333; /* Cor do texto principal */
+  --text-muted: #6c757d; /* Cor para texto secundário */
+  --shadow: 0 2px 15px rgba(0, 0, 0, 0.1); /* Sombra padrão para elementos */
+  --radius: 8px; /* Raio de borda padrão */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Fonte padrão */
+}
+
+body {
+  font-family: var(--font-family); /* Fonte padrão para o corpo */
+  background: #f0f2f5; /* Cor de fundo do corpo */
+  color: var(--text-color); /* Cor do texto */
+  line-height: 1.5; /* Altura da linha para melhor legibilidade */
+}
+
+.main-container {
+  max-width: 1200px; /* Largura máxima do contêiner principal */
+  margin: 20px auto; /* Margem automática para centralizar */
+  padding: 0 20px; /* Padding lateral */
+}
+
+/* Estilos do cabeçalho */
+header {
+  padding: 15px 0; /* Padding para o cabeçalho */
+  margin-bottom: 20px; /* Margem inferior para espaçamento */
+  background-color: var(--primary-color); /* Cor de fundo do cabeçalho */
+  color: white; /* Cor do texto do cabeçalho */
+}
+
+.navbar-brand {
+  font-size: 1.5rem; /* Tamanho da fonte para a marca da navbar */
+  font-weight: bold; /* Negrito para a marca */
+  color: white; /* Cor do texto da marca */
+}
+
+.navbar-nav .nav-link {
+  font-size: 1.1rem; /* Tamanho da fonte para links da navbar */
+  margin-right: 15px; /* Margem à direita para espaçamento */
+  color: rgba(255, 255, 255, 0.9); /* Cor do texto dos links */
+}
+
+.navbar-nav .nav-link:hover {
+  color: #f8f9fa; /* Cor de hover para links da navbar */
+  background-color: rgba(255, 255, 255, 0.1); /* Cor de fundo ao passar o mouse */
+  border-radius: 5px; /* Raio de borda ao passar o mouse */
+}
+
+.navbar-nav .nav-link.active {
+  color: white; /* Cor do texto para links ativos */
+  font-weight: 500; /* Peso da fonte para links ativos */
+}
+
+/* Estilos de seções */
+.section-title {
+  margin-bottom: 1.5rem; /* Margem inferior para títulos de seção */
+  color: var(--primary-color); /* Cor do título da seção */
+  font-weight: 600; /* Peso da fonte para títulos de seção */
+  padding-bottom: 0.5rem; /* Padding inferior para títulos de seção */
+  border-bottom: 1px solid var(--border-color); /* Borda inferior para títulos de seção */
+}
+
+.section-subtitle {
+  font-size: 1.2rem; /* Tamanho da fonte para subtítulos de seção */
+  color: var(--secondary-color); /* Cor do subtítulo da seção */
+  margin-bottom: 1rem; /* Margem inferior para subtítulos de seção */
+}
+
+/* Estilos de formulários */
+.form-control, .form-select {
+  border-radius: var(--radius); /* Raio de borda para campos de formulário */
+  border: 1px solid var(--border-color); /* Borda padrão para campos de formulário */
+  padding: 0.75rem 1rem; /* Padding para campos de formulário */
+  font-size: 1rem; /* Tamanho da fonte para campos de formulário */
+  transition: border-color 0.2s, box-shadow 0.2s; /* Transição suave para foco */
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color); /* Cor da borda ao focar */
+  box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25); /* Sombra ao focar */
+}
+
+.form-label {
+  font-weight: 500; /* Peso da fonte para rótulos de formulário */
+  margin-bottom: 0.5rem; /* Margem inferior para rótulos de formulário */
+  color: var(--text-color); /* Cor do rótulo de formulário */
+}
+
+/* Botões */
+.btn {
+  border-radius: var(--radius); /* Raio de borda para botões */
+  padding: 0.5rem 1rem; /* Padding para botões */
+  font-weight: 500; /* Peso da fonte para botões */
+  transition: all 0.2s ease; /* Transição suave para botões */
+}
+
+.btn-primary {
+  background-color: var(--primary-color); /* Cor de fundo para botões primários */
+  border-color: var(--primary-color); /* Cor da borda para botões primários */
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover); /* Cor de fundo ao passar o mouse */
+  border-color: var(--primary-hover); /* Cor da borda ao passar o mouse */
+  transform: translateY(-1px); /* Efeito de elevação ao passar o mouse */
+}
+
+.btn-primary:active {
+  transform: translateY(0); /* Efeito de retorno ao clicar */
+}
+
+/* Utilitários */
+.sr-only {
+  position: absolute; /* Posicionamento absoluto para acessibilidade */
+  width: 1px; /* Largura mínima */
+  height: 1px; /* Altura mínima */
+  padding: 0; /* Remover padding */
+  margin: -1px; /* Remover margens */
+  overflow: hidden; /* Ocultar conteúdo */
+  clip: rect(0, 0, 0, 0); /* Ocultar conteúdo */
+  white-space: nowrap; /* Não quebrar linha */
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .main-container {
+    padding: 0 10px; /* Padding reduzido para telas menores */
+    margin: 10px auto; /* Margem automática para centralizar */
+  }
+  
+  .form-buttons {
+    flex-direction: column; /* Direção da flex para botões */
+  }
+  
+  .form-buttons .btn {
+    margin-bottom: 0.5rem; /* Margem inferior para botões */
+  }
+} 

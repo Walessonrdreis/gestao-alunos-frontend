@@ -1,0 +1,229 @@
+/**
+ * Estilos responsivos para a aplicação
+ * 
+ * Este arquivo contém media queries e ajustes para garantir que a aplicação
+ * funcione corretamente em todos os tamanhos de tela, desde dispositivos móveis
+ * até telas grandes.
+ */
+
+/* -----------------------------------------------------------------------------
+ * Variáveis de breakpoints
+ * -------------------------------------------------------------------------- */
+:root {
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+}
+
+/* -----------------------------------------------------------------------------
+ * Media queries para dispositivos pequenos (smartphones)
+ * -------------------------------------------------------------------------- */
+@media (max-width: 575.98px) {
+  /* Ajustes para layout geral */
+  .container {
+    padding: 0 0.75rem;
+  }
+  
+  /* Ajustes para cabeçalho */
+  header {
+    padding: 0.75rem 0;
+  }
+  
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+  
+  /* Ajustes para formulários */
+  .form-control, .form-select {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .form-label {
+    font-size: 0.9rem;
+  }
+  
+  /* Ajustes para cards e listas */
+  .card {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Ajustes para textos */
+  h1, .h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2, .h2 {
+    font-size: 1.25rem;
+  }
+  
+  p {
+    font-size: 0.9rem;
+  }
+  
+  /* Ajustes para botões */
+  .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .btn-group .btn {
+    width: auto;
+    margin-bottom: 0;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+ * Media queries para dispositivos médios (tablets)
+ * -------------------------------------------------------------------------- */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  /* Ajustes para layout geral */
+  .container {
+    padding: 0 1rem;
+  }
+  
+  /* Ajustes para cabeçalho */
+  header {
+    padding: 1rem 0;
+  }
+  
+  /* Ajustes para cards e listas */
+  .card {
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  /* Ajustes para formulários em linha */
+  .form-inline .form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+  }
+  
+  /* Ajustes para botões */
+  .btn {
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+ * Media queries para tablets maiores e laptops pequenos
+ * -------------------------------------------------------------------------- */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  /* Ajustes para layout em grid */
+  .row {
+    margin-right: -0.5rem;
+    margin-left: -0.5rem;
+  }
+  
+  .col, [class*="col-"] {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+  }
+  
+  /* Ajustes para tabelas */
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+ * Media queries para desktops
+ * -------------------------------------------------------------------------- */
+@media (min-width: 992px) {
+  /* Ajustes para modais */
+  .modal-lg {
+    max-width: 900px;
+  }
+  
+  /* Ajustes para contêiner principal */
+  .container {
+    max-width: 960px;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+ * Media queries para telas grandes
+ * -------------------------------------------------------------------------- */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+  
+  /* Aumentar espaçamento em telas maiores */
+  .section {
+    padding: 3rem 0;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+ * Correções para espaçamentos inconsistentes
+ * -------------------------------------------------------------------------- */
+/* Evitar espaço impróprio em cards e listas */
+.card:last-child,
+.list-group-item:last-child,
+.alert:last-child,
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Melhorar alinhamento de elementos em flex containers */
+.d-flex {
+  display: flex;
+  align-items: center;
+}
+
+/* Ajustes para elementos de navegação */
+.nav-item:last-child .nav-link {
+  margin-right: 0;
+}
+
+/* Imagens responsivas */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Tabelas responsivas */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* -----------------------------------------------------------------------------
+ * Utilitários responsivos
+ * -------------------------------------------------------------------------- */
+/* Esconder elementos em telas pequenas */
+@media (max-width: 575.98px) {
+  .d-xs-none {
+    display: none !important;
+  }
+}
+
+/* Esconder elementos em telas médias */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .d-sm-none {
+    display: none !important;
+  }
+}
+
+/* Exibir elementos apenas em telas pequenas */
+@media (max-width: 575.98px) {
+  .d-xs-block {
+    display: block !important;
+  }
+}
+
+/* Alinhar texto responsivamente */
+@media (max-width: 767.98px) {
+  .text-center-sm {
+    text-align: center !important;
+  }
+} 

@@ -1,0 +1,76 @@
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  min-width: 100px;
+  justify-content: center;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-action i {
+  font-size: 1rem;
+}
+
+.btn-action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  transition: all 0.2s;
+  background: transparent;
+  border: none;
+  color: #6c757d;
+}
+
+.btn-action-icon:hover {
+  transform: translateY(-2px);
+  color: #007bff;
+}
+
+.btn-action-icon i {
+  font-size: 1.1rem;
+}
+
+/* Cores específicas para botões quando hover */
+.btn-action-icon.btn-link:hover i.fa-eye {
+  color: #17a2b8;
+}
+
+.btn-action-icon.btn-link:hover i.fa-edit {
+  color: #28a745;
+}
+
+.btn-action-icon.btn-link:hover i.fa-trash-alt {
+  color: #dc3545;
+}
+
+.btn-action-icon.btn-link:hover i.fa-file-pdf {
+  color: #fd7e14;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .btn-action {
+    min-width: auto;
+  }
+  
+  .btn-action span {
+    display: none;
+  }
+  
+  .action-buttons {
+    justify-content: center;
+  }
+} 

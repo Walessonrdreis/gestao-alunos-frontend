@@ -1,0 +1,201 @@
+/**
+ * Estilos globais para a aplicação
+ *
+ * Duplica o estilo do frontend PHP e define variáveis de cores e estilos
+ * que serão utilizados em toda a aplicação.
+ */
+
+/* -----------------------------------------------------------------------------
+ * Variáveis globais
+ * -------------------------------------------------------------------------- */
+:root {
+  /* Cores principais */
+  --primary-color: #0d6efd;
+  --primary-hover: #0b5ed7;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --light-bg: #f8f9fa;
+  --border-color: #dee2e6;
+  
+  /* Tipografia */
+  --text-color: #333;
+  --text-muted: #6c757d;
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  /* Elementos UI */
+  --shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  --radius: 8px;
+}
+
+/* -----------------------------------------------------------------------------
+ * Estilos base
+ * -------------------------------------------------------------------------- */
+body {
+  /* Tipografia */
+  font-family: var(--font-family);
+  color: var(--text-color);
+  line-height: 1.5;
+  
+  /* Box model */
+  padding-top: 0;
+  margin: 0;
+  min-height: 100vh;
+  width: 100%;
+  
+  /* Visual */
+  background: #f0f2f5;
+  display: block;
+}
+
+a {
+  /* Visual */
+  color: var(--primary-color);
+  text-decoration: none;
+  
+  /* Diversos */
+  transition: color 0.2s;
+}
+
+a:hover {
+  /* Visual */
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+button {
+  /* Box model */
+  padding: 0.6em 1.2em;
+  
+  /* Tipografia */
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  
+  /* Visual */
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  
+  /* Diversos */
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+button:hover {
+  /* Visual */
+  border-color: #646cff;
+}
+
+button:focus,
+button:focus-visible {
+  /* Visual */
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* -----------------------------------------------------------------------------
+ * Componentes de layout
+ * -------------------------------------------------------------------------- */
+.main-container {
+  /* Box model */
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+header {
+  /* Box model */
+  padding: 80px 40px;
+  margin-bottom: 20px;
+}
+
+/* -----------------------------------------------------------------------------
+ * Componentes de navegação
+ * -------------------------------------------------------------------------- */
+.navbar-brand {
+  /* Tipografia */
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+  /* Box model */
+  margin-right: 15px;
+  
+  /* Tipografia */
+  font-size: 1.1rem;
+}
+
+.navbar-nav .nav-link:hover {
+  /* Visual */
+  color: #f8f9fa;
+}
+
+/* -----------------------------------------------------------------------------
+ * Media queries para responsividade
+ * -------------------------------------------------------------------------- */
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Tipografia */
+    color: #213547;
+    
+    /* Visual */
+    background-color: #ffffff;
+  }
+  
+  a:hover {
+    /* Visual */
+    color: #747bff;
+  }
+  
+  button {
+    /* Visual */
+    background-color: #f9f9f9;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    /* Box model */
+    max-width: 100%;
+    padding: 0 15px;
+    margin: 10px auto;
+  }
+  
+  header {
+    /* Box model */
+    padding: 40px 20px;
+  }
+  
+  button {
+    /* Box model */
+    width: 100%;
+    padding: 0.5em 1em;
+    margin-bottom: 0.5em;
+  }
+}
+
+@media (max-width: 576px) {
+  header {
+    /* Box model */
+    padding: 20px 15px;
+  }
+  
+  .navbar-brand {
+    /* Tipografia */
+    font-size: 1.25rem;
+  }
+  
+  .navbar-nav .nav-link {
+    /* Box model */
+    margin-right: 8px;
+    padding: 0.3em 0.5em;
+    
+    /* Tipografia */
+    font-size: 0.9rem;
+  }
+}

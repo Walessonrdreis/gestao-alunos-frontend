@@ -1,0 +1,70 @@
+.alunos-list {
+  margin-bottom: 2rem;
+}
+
+.alunos-grid {
+  margin-top: 1rem;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-info {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.current-page,
+.total-pages {
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.alunos-list-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.alunos-list-loading p {
+  margin-top: 1rem;
+  color: #6c757d;
+}
+
+.alunos-list-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  text-align: center;
+  color: #6c757d;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+}
+
+.alunos-list-empty h4 {
+  margin-bottom: 0.75rem;
+  color: #343a40;
+}
+
+.alunos-list-empty p {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Responsividade da paginação */
+@media (max-width: 576px) {
+  .pagination-controls {
+    flex-direction: column;
+  }
+} 

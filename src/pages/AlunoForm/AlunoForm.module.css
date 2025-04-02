@@ -1,0 +1,114 @@
+.alunoFormContainer {
+  padding: 2rem 0;
+  max-width: 1200px;
+}
+
+.alunoFormCard {
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  border: none;
+  overflow: hidden;
+}
+
+.sectionTitle {
+  color: #333;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.sectionSubtitle {
+  color: #333;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.disciplinasSelect {
+  height: 150px !important;
+}
+
+.formButton {
+  min-width: 140px;
+  transition: all 0.3s ease;
+}
+
+.formButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para o Calendar dentro do AlunoForm */
+.alunoFormCard :global(.calendar-wrapper) {
+  margin-top: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* Estilos para o componente de revisão */
+.reviewCard {
+  height: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  border: none;
+  overflow: hidden;
+}
+
+.reviewCard :global(.card-title) {
+  color: #333;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.reviewLabel {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.reviewValue {
+  color: #333;
+  font-weight: 400;
+  padding-left: 1.5rem;
+  word-break: break-word;
+}
+
+.defaultTimeContainer {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+/* Media queries */
+@media (max-width: 992px) {
+  .reviewCard {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .formButton {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .alunoFormCard {
+    padding: 1rem;
+  }
+}

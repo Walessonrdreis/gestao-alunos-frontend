@@ -1,0 +1,245 @@
+/* Estilos do Modal PDF */
+.pdf-modal .modal-dialog {
+  max-width: 90%;
+  height: 90vh;
+  margin: 2% auto;
+}
+
+.pdf-modal .modal-content {
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.pdf-modal-body {
+  height: calc(100% - 60px); /* Altura do conteúdo menos a altura do cabeçalho */
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Estilos para o visualizador PDF */
+.pdf-viewer {
+  background: #fff;
+  padding: 20px;
+  margin: 0 auto;
+  width: 100%;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.pdf-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 15px;
+}
+
+.pdf-header img.escola-logo {
+  max-width: 100px;
+  height: auto;
+  object-fit: contain;
+}
+
+.header-text {
+  text-align: center;
+  flex-grow: 1;
+}
+
+.header-text h1 {
+  font-size: 24px;
+  margin: 0 0 8px 0;
+  font-weight: bold;
+}
+
+.header-text h2 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.agenda-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.agenda-info, .matricula-info {
+  display: flex;
+  gap: 10px;
+}
+
+.aulas-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.aulas-table th,
+.aulas-table td {
+  border: 1px solid #000;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.aulas-table th {
+  background-color: #fff;
+  font-weight: bold;
+  text-align: center;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.aulas-table td {
+  font-size: 14px;
+}
+
+.aulas-table td:first-child {
+  width: 40px;
+}
+
+.aulas-table td:nth-child(2) {
+  width: 100px;
+}
+
+.aulas-table td:nth-child(3) {
+  width: 120px;
+}
+
+.aulas-table td:nth-child(4) {
+  width: 80px;
+}
+
+.aulas-table td:nth-child(5) {
+  width: 180px;
+}
+
+.aulas-table td:nth-child(6) {
+  width: 150px;
+}
+
+.aulas-table td:last-child {
+  width: 200px;
+}
+
+.aluno-nome, .aluno-matricula {
+  font-weight: bold;
+}
+
+.pdf-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-imprimir, .btn-download {
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-imprimir i, .btn-download i {
+  margin-right: 5px;
+}
+
+/* Estilos específicos para impressão */
+@media print {
+  @page {
+    size: landscape;
+    margin: 1.5cm 1cm;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+  
+  .pdf-viewer,
+  .pdf-viewer * {
+    visibility: visible;
+  }
+  
+  .pdf-viewer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .btn-imprimir,
+  .btn-download,
+  .modal-header,
+  .modal-footer {
+    display: none !important;
+  }
+  
+  .pdf-header {
+    margin-top: 0;
+  }
+  
+  .aulas-table {
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .aulas-table th,
+  .aulas-table td {
+    padding: 5px;
+  }
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .pdf-modal .modal-dialog {
+    max-width: 95%;
+    margin: 1% auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .pdf-modal .modal-dialog {
+    max-width: 98%;
+    margin: 1% auto;
+  }
+  
+  .pdf-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .header-text {
+    width: 100%;
+  }
+  
+  .agenda-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .aulas-table th,
+  .aulas-table td {
+    padding: 5px;
+    font-size: 12px;
+  }
+  
+  .pdf-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 576px) {
+  .aulas-table {
+    font-size: 10px;
+  }
+  
+  .aulas-table th,
+  .aulas-table td {
+    padding: 3px;
+  }
+} 
