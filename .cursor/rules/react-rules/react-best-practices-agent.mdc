@@ -1,0 +1,258 @@
+---
+description: Este conjunto de regras deve ser aplicado no desenvolvimento de componentes e aplicações React. Deve ser considerado sempre que: (1) Planejando novos componentes ou recursos React, (2) Modificando código React existente, (3) Revisando ou corrigindo bugs relacionados a React, (4) Tomando decisões arquiteturais que envolvem React, (5) Criando novos arquivos React ou refatorando existentes. A regra garante componentes de alta qualidade, padrões modernos de React e uma estrutura de código sustentável seguindo princípios SOLID e Clean Code. É particularmente crucial ao lidar com hierarquias de componentes, gerenciamento de estado, hooks e otimização de performance.
+globs: 
+alwaysApply: false
+---
+
+# React Boas Práticas (SOLID e Clean Code)
+
+## Regras Críticas
+
+### Princípios SOLID para React
+- **Single Responsibility (Responsabilidade Única)**: Cada componente deve ter uma única responsabilidade; crie componentes pequenos e focados
+- **Open/Closed (Aberto/Fechado)**: Componentes devem ser extensíveis sem modificação; use props para configuração e renderização condicional
+- **Liskov Substitution (Substituição de Liskov)**: Componentes filho devem ser substituíveis por seus componentes pai; mantenha interfaces de props consistentes na hierarquia
+- **Interface Segregation (Segregação de Interface)**: Defina props específicas em vez de objetos grandes; não force componentes a depender de props que não usam
+- **Dependency Inversion (Inversão de Dependência)**: Dependa de abstrações, não concreções; use injeção de dependência via props ou contextos
+
+### Clean Code e Structure
+- Nomear componentes usando PascalCase e funções/hooks usando camelCase
+- Organizar pastas por domínio/feature e não por tipo de arquivo (components, hooks, etc.)
+- Extrair lógica de negócios complexa para hooks customizados
+- Aplicar o padrão Container/Presentational quando apropriado
+- Favorecer composição sobre herança
+- Manter arquivos pequenos (máximo 250-300 linhas)
+- Dividir componentes grandes em subcomponentes mais gerenciáveis
+
+### Componentes e JSX
+- Sempre declare componentes funcionais com `const` e arrow functions
+- Use desestruturação de props para melhorar legibilidade
+- Forneça valores padrão para props opcionais usando parâmetros padrão
+- Utilize TypeScript para tipagem estrita de props e estado
+- Adicione prop-types para projetos JavaScript
+- Evite usar índices de array como keys, use IDs únicos
+- Limite o número de props para no máximo 5-7, use objetos para agrupar props relacionadas
+
+### Hooks e Estado
+- Siga as regras de Hooks (apenas chame no nível superior, apenas de componentes React)
+- Prefira múltiplos `useState` pequenos a um único objeto de estado complexo
+- Use `useReducer` para lógica de estado complexa ou relacionada
+- Extraia lógica de efeitos em hooks customizados reutilizáveis
+- Use `useMemo` e `useCallback` para otimizar performance apenas quando necessário, não prematuramente
+- Evite mutação de estado; sempre crie novos objetos/arrays
+
+### Performance e Otimização
+- Use React.memo() apenas para componentes que renderizam frequentemente com as mesmas props
+- Implemente virtualizaćão para listas longas (react-window ou react-virtualized)
+- Otimize renderizações utilizando lazy loading e code splitting
+- Evite renderizações aninhadas desnecessárias com técnicas como Componente Composto
+- Implemente carregamento progressivo para imagens e conteúdo pesado
+
+### Refatoração
+- Identifique e extraia componentes duplicados em componentes reutilizáveis
+- Aplique composição para compartilhar funcionalidades em vez de HOCs ou props complexas
+- Refatore lógica comum para hooks customizados
+- Divida componentes grandes utilizando a técnica de extração de componentes
+- Use context API para evitar prop drilling em hierarquias profundas
+
+## Exemplos
+
+<example>
+// Bom - Componente com responsabilidade única
+const UserAvatar = ({ user, size = 'medium', className }) => {
+  const sizeMap = {
+    small: '32px',
+    medium: '48px',
+    large: '64px'
+  };
+  
+  return (
+    <img
+      src={user.avatarUrl || '/default-avatar.png'}
+      alt={`${user.name}'s avatar`}
+      className={className}
+      style={{ 
+        width: sizeMap[size], 
+        height: sizeMap[size],
+        borderRadius: '50%' 
+      }}
+    />
+  );
+};
+
+// Bom - Hook customizado para extração de lógica
+const useUserStatus = (userId) => {
+  const [status, setStatus] = useState('offline');
+  const [lastActive, setLastActive] = useState(null);
+  
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const data = await api.getUserStatus(userId);
+        setStatus(data.status);
+        setLastActive(data.lastActive);
+      } catch (error) {
+        console.error('Failed to fetch user status', error);
+      }
+    };
+    
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 60000);
+    
+    return () => clearInterval(interval);
+  }, [userId]);
+  
+  return { status, lastActive };
+};
+
+// Bom - Componente Composto para Interface Flexível
+const Tabs = ({ children, defaultActiveTab }) => {
+  const [activeTab, setActiveTab] = useState(defaultActiveTab);
+  
+  return (
+    <TabsContext.Provider value={{ activeTab, setActiveTab }}>
+      <div className="tabs-container">
+        {children}
+      </div>
+    </TabsContext.Provider>
+  );
+};
+
+Tabs.TabList = ({ children }) => <div className="tab-list">{children}</div>;
+
+Tabs.Tab = ({ id, children }) => {
+  const { activeTab, setActiveTab } = useContext(TabsContext);
+  
+  return (
+    <button
+      className={`tab ${activeTab === id ? 'active' : ''}`}
+      onClick={() => setActiveTab(id)}
+    >
+      {children}
+    </button>
+  );
+};
+
+Tabs.TabPanel = ({ id, children }) => {
+  const { activeTab } = useContext(TabsContext);
+  
+  if (activeTab !== id) return null;
+  return <div className="tab-panel">{children}</div>;
+};
+</example>
+
+<example type="invalid">
+// Ruim - Componente com múltiplas responsabilidades
+const UserProfile = ({ userId }) => {
+  const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [activeTab, setActiveTab] = useState('posts');
+  
+  useEffect(() => {
+    // Fetch user
+    fetch(`/api/users/${userId}`)
+      .then(res => res.json())
+      .then(data => setUser(data));
+      
+    // Fetch posts
+    fetch(`/api/users/${userId}/posts`)
+      .then(res => res.json())
+      .then(data => setPosts(data));
+      
+    // Fetch comments
+    fetch(`/api/users/${userId}/comments`)
+      .then(res => res.json())
+      .then(data => setComments(data));
+  }, [userId]);
+  
+  if (!user) return <div>Loading...</div>;
+  
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <img src={user.avatar} alt={`${user.name}'s avatar`} />
+      <p>{user.bio}</p>
+      
+      <div className="tabs">
+        <button 
+          className={activeTab === 'posts' ? 'active' : ''}
+          onClick={() => setActiveTab('posts')}
+        >
+          Posts ({posts.length})
+        </button>
+        <button 
+          className={activeTab === 'comments' ? 'active' : ''}
+          onClick={() => setActiveTab('comments')}
+        >
+          Comments ({comments.length})
+        </button>
+      </div>
+      
+      {activeTab === 'posts' && (
+        <div>
+          {posts.map(post => (
+            <div key={post.id}>
+              <h3>{post.title}</h3>
+              <p>{post.content}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {activeTab === 'comments' && (
+        <div>
+          {comments.map(comment => (
+            <div key={comment.id}>
+              <p>{comment.content}</p>
+              <small>On: {comment.postTitle}</small>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Ruim - Lógica de negócios no componente
+function ProductList() {
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
+  
+  function addToCart(product) {
+    // Complexa lógica de negócios diretamente no componente
+    const existingItem = cart.find(item => item.id === product.id);
+    
+    if (existingItem) {
+      setCart(cart.map(item => 
+        item.id === product.id 
+          ? { ...item, quantity: item.quantity + 1 } 
+          : item
+      ));
+    } else {
+      setCart([...cart, { ...product, quantity: 1 }]);
+    }
+    
+    // Atualizar estoque
+    setProducts(products.map(p => 
+      p.id === product.id 
+        ? { ...p, stock: p.stock - 1 } 
+        : p
+    ));
+  }
+  
+  return (
+    <div>
+      {products.map(product => (
+        <div key={product.id}>
+          <h3>{product.name}</h3>
+          <p>${product.price}</p>
+          <button onClick={() => addToCart(product)}>
+            Add to Cart
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+</example>

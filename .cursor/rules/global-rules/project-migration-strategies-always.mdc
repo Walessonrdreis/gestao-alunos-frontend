@@ -1,0 +1,444 @@
+---
+description: Este conjunto de regras define estratégias e melhores práticas para migração de projetos legados. Deve ser seguido sempre que: (1) Refatorando sistemas desorganizados, (2) Migrando para arquiteturas mais modernas, (3) Melhorando sistemas que não seguem princípios SOLID e Clean Code, (4) Implementando migrações graduais sem afetar funcionalidades existentes, (5) Modernizando bases de código com débito técnico elevado. A regra garante que migrações sejam realizadas de forma segura, incremental e com baixo risco, priorizando a manutenção da funcionalidade enquanto melhora a qualidade do código e a arquitetura. É particularmente crucial quando o sistema em questão está em produção e não pode sofrer interrupções ou regredir em funcionalidades durante o processo de migração.
+globs: 
+alwaysApply: true
+---
+
+# Estratégias para Migração de Projetos
+
+## Regras Críticas
+
+### Análise e Planejamento Inicial
+
+- **SEMPRE** comece com uma análise completa do sistema existente antes de qualquer modificação
+- Mapeie dependências entre componentes e serviços através de diagramas de arquitetura
+- Identifique débitos técnicos e áreas problemáticas que precisam de atenção prioritária
+- Documente funcionalidades críticas do sistema que precisam ser preservadas
+- Defina métricas claras para avaliar o sucesso da migração (performance, cobertura de testes, etc.)
+- Estabeleça uma linha do tempo realista com entregáveis incrementais
+- Crie um inventário de todos os componentes, serviços e dependências do sistema
+- Determine quais partes do sistema têm maior risco e priorize testes nessas áreas
+
+### Estratégia de Testes
+
+- Implemente testes de integração para funcionalidades críticas **ANTES** de iniciar refatorações
+- Crie testes que validem o comportamento externo do sistema, não sua implementação
+- Mantenha uma suíte de testes automatizados que seja executada em cada alteração
+- Implemente monitoramento de regressões para detectar problemas logo após alterações
+- Estabeleça cobertura mínima de testes para componentes críticos (80%+)
+- Implemente testes end-to-end para fluxos críticos de usuário
+- Documente os casos de teste e resultados esperados
+
+### Abordagem Incremental
+
+- Divida a migração em pequenas fases independentes e entregáveis
+- Implemente o padrão Strangler Fig para substituir componentes gradualmente
+- Mantenha ambos os sistemas (novo e antigo) funcionando em paralelo durante a transição
+- Estabeleça períodos de freeze de código para componentes estáveis já migrados
+- Implemente feature flags para ativar/desativar novos componentes em produção
+- Adote a técnica de "refatoração de seam" para isolar áreas antes da migração
+- Estabeleça pontos de verificação para avaliar o progresso e ajustar a estratégia
+
+### Estrutura e Arquitetura
+
+- Aplique princípios SOLID em todos os novos componentes e refatorações
+- Implemente Clean Architecture para separar domínios, aplicação e infraestrutura
+- Organize o código por domínios de negócio (Domain-Driven Design)
+- Substitua código procedural por orientado a objetos quando apropriado
+- Reduza acoplamento entre componentes através de interfaces e abstrações
+- Aplique padrões de design para resolver problemas arquiteturais comuns
+- Introduza camadas de serviço para encapsular lógica de negócio complexa
+- Implemente injeção de dependência para facilitar testes e desacoplamento
+
+### Gerenciamento de Código e Versionamento
+
+- Crie branches específicos para cada fase da migração
+- Utilize Pull Requests com revisões de código obrigatórias
+- Implemente integração contínua com execução automática de testes
+- Mantenha controle de versão semântico para todas as mudanças
+- Estabeleça convenções de código e aplique-as via linters automatizados
+- Utilize ferramentas de análise estática para identificar problemas de código
+- Estabeleça um processo claro para merge de código migrado para a branch principal
+
+### Banco de Dados e Persistência
+
+- Trate migrações de banco de dados separadamente do código da aplicação
+- Implemente scripts de migração idempotentes e reversíveis
+- Separe modificações de esquema de migração de dados
+- Mantenha compatibilidade com versões anteriores durante transições
+- Implemente o padrão Repository para abstrair o acesso a dados
+- Documente todas as alterações no esquema de banco de dados
+- Evite modificações diretas no banco de produção; use scripts versionados
+
+### Transição e Deployment
+
+- Implemente estratégias de feature toggle para habilitar novas funcionalidades
+- Utilize blue-green deployments para migrações críticas
+- Estabeleça métricas de saúde do sistema e monitore-as constantemente
+- Implemente rollback automatizado caso métricas críticas sejam afetadas
+- Notifique stakeholders antes de cada fase de migração
+- Defina critérios claros de aceitação para cada componente migrado
+- Mantenha um registro detalhado (changelog) de todas as alterações implementadas
+
+### Documentação e Conhecimento
+
+- Crie documentação arquitetural atualizada para o novo sistema
+- Documente decisões técnicas e suas justificativas (ADRs - Architecture Decision Records)
+- Mantenha um glossário de domínio para termos de negócio
+- Documente interfaces e contratos entre componentes
+- Realize sessões de transferência de conhecimento para a equipe
+- Mantenha um repositório de lições aprendidas durante a migração
+- Atualize a documentação em paralelo com as mudanças de código
+
+## Exemplos
+
+<example>
+// 1. ESTRATÉGIA DE STRANGLER FIG PARA MIGRAÇÃO INCREMENTAL
+
+// Abordagem antiga: Monolito com regras de negócio misturadas na camada de apresentação
+// ProductController.php (versão antiga)
+class ProductController extends Controller
+{
+    public function updatePrice($productId, Request $request)
+    {
+        // Validação
+        $request->validate(['price' => 'required|numeric|min:0']);
+        
+        // Lógica de negócio diretamente no controller
+        $product = Product::findOrFail($productId);
+        $oldPrice = $product->price;
+        $newPrice = $request->price;
+        
+        // Regras de negócio espalhadas
+        if ($newPrice < $oldPrice * 0.5) {
+            // Lógica de auditoria
+            Audit::log("Preço reduzido mais que 50% para produto {$productId}");
+            // Notificação
+            Mail::to('admin@example.com')->send(new PriceAlertMail($product, $oldPrice, $newPrice));
+        }
+        
+        // Mais regras de negócio
+        if ($product->category_id == 5 && $newPrice > 1000) {
+            $newPrice = 1000; // Preço máximo para categoria 5
+        }
+        
+        $product->price = $newPrice;
+        $product->save();
+        
+        // Lógica de cache
+        Cache::forget('product_' . $productId);
+        Cache::forget('featured_products');
+        
+        return response()->json($product);
+    }
+}
+
+// FASE 1: EXTRAIR LÓGICA DE NEGÓCIO PARA SERVIÇO
+
+// 1. Criar interface para novo serviço (contrato)
+// app/Services/Contracts/PricingServiceInterface.php
+interface PricingServiceInterface
+{
+    public function updateProductPrice(int $productId, float $newPrice): Product;
+}
+
+// 2. Implementar serviço com lógica de negócio
+// app/Services/PricingService.php
+class PricingService implements PricingServiceInterface
+{
+    protected $auditService;
+    protected $notificationService;
+    
+    public function __construct(AuditServiceInterface $auditService, NotificationServiceInterface $notificationService)
+    {
+        $this->auditService = $auditService;
+        $this->notificationService = $notificationService;
+    }
+    
+    public function updateProductPrice(int $productId, float $newPrice): Product
+    {
+        $product = Product::findOrFail($productId);
+        $oldPrice = $product->price;
+        
+        // Regra de negócio sobre grandes reduções de preço
+        if ($newPrice < $oldPrice * 0.5) {
+            $this->auditService->logPriceReduction($product, $oldPrice, $newPrice);
+            $this->notificationService->notifyPriceAlert($product, $oldPrice, $newPrice);
+        }
+        
+        // Regra de negócio sobre preço máximo por categoria
+        if ($product->category_id == 5 && $newPrice > 1000) {
+            $newPrice = 1000;
+        }
+        
+        $product->price = $newPrice;
+        $product->save();
+        
+        // Invalidar cache
+        $this->invalidateProductCache($product);
+        
+        return $product;
+    }
+    
+    protected function invalidateProductCache(Product $product): void
+    {
+        Cache::forget('product_' . $product->id);
+        Cache::forget('featured_products');
+    }
+}
+
+// 3. Refatorar controller para usar o novo serviço
+// app/Http/Controllers/ProductController.php
+class ProductController extends Controller
+{
+    protected $pricingService;
+    
+    public function __construct(PricingServiceInterface $pricingService)
+    {
+        $this->pricingService = $pricingService;
+    }
+    
+    public function updatePrice($productId, Request $request)
+    {
+        // Validação permanece no controller
+        $validatedData = $request->validate(['price' => 'required|numeric|min:0']);
+        
+        // Delegar lógica de negócio para o serviço
+        $product = $this->pricingService->updateProductPrice($productId, $validatedData['price']);
+        
+        return response()->json($product);
+    }
+}
+
+// 4. Registrar binding no ServiceProvider
+// app/Providers/AppServiceProvider.php
+public function register()
+{
+    $this->app->bind(PricingServiceInterface::class, PricingService::class);
+    $this->app->bind(AuditServiceInterface::class, AuditService::class);
+    $this->app->bind(NotificationServiceInterface::class, NotificationService::class);
+}
+
+// FASE 2: IMPLEMENTAR TESTES ABRANGENTES
+
+// 1. Teste de unidade para o serviço
+// tests/Unit/Services/PricingServiceTest.php
+public function test_large_price_reduction_triggers_audit_and_notification()
+{
+    // Arrange
+    $auditService = $this->createMock(AuditServiceInterface::class);
+    $auditService->expects($this->once())
+                ->method('logPriceReduction');
+                
+    $notificationService = $this->createMock(NotificationServiceInterface::class);
+    $notificationService->expects($this->once())
+                      ->method('notifyPriceAlert');
+                      
+    $pricingService = new PricingService($auditService, $notificationService);
+    
+    // Criar produto de teste com preço 100
+    $product = factory(Product::class)->create(['price' => 100]);
+    
+    // Act
+    $updatedProduct = $pricingService->updateProductPrice($product->id, 40); // 60% redução
+    
+    // Assert
+    $this->assertEquals(40, $updatedProduct->price);
+}
+
+// 2. Teste de integração para o endpoint
+// tests/Feature/ProductPriceUpdateTest.php
+public function test_product_price_can_be_updated_through_api()
+{
+    // Arrange
+    $this->actingAs(factory(User::class)->create());
+    $product = factory(Product::class)->create(['price' => 50]);
+    
+    // Act
+    $response = $this->putJson("/api/products/{$product->id}/price", [
+        'price' => 75
+    ]);
+    
+    // Assert
+    $response->assertStatus(200);
+    $this->assertDatabaseHas('products', [
+        'id' => $product->id,
+        'price' => 75
+    ]);
+}
+
+// FASE 3: ADICIONAR FEATURE FLAG PARA CONTROLE DE MIGRAÇÃO
+
+// 1. Configurar feature flag
+// config/features.php
+return [
+    'use_new_pricing_service' => env('FEATURE_NEW_PRICING_SERVICE', false),
+];
+
+// 2. Modificar controller para usar feature flag
+// app/Http/Controllers/ProductController.php
+public function updatePrice($productId, Request $request)
+{
+    $validatedData = $request->validate(['price' => 'required|numeric|min:0']);
+    
+    if (config('features.use_new_pricing_service')) {
+        // Novo código
+        $product = $this->pricingService->updateProductPrice($productId, $validatedData['price']);
+    } else {
+        // Código legado
+        $product = Product::findOrFail($productId);
+        // ... código legado ...
+    }
+    
+    return response()->json($product);
+}
+
+// 3. Documentar a migração em ADR
+/**
+ * # ADR 001: Migração do Serviço de Precificação
+ * 
+ * ## Contexto
+ * O sistema atual tem lógica de precificação acoplada ao controller,
+ * resultando em código difícil de testar e manter.
+ * 
+ * ## Decisão
+ * Extrair toda a lógica de precificação para um serviço dedicado seguindo
+ * princípios SOLID, especialmente Responsabilidade Única e Inversão de Dependência.
+ * 
+ * ## Status
+ * Aprovado
+ * 
+ * ## Consequências
+ * - Positivas:
+ *   - Melhor testabilidade da lógica de negócio
+ *   - Redução de responsabilidades do controller
+ *   - Facilidade para expansão de regras de precificação
+ * 
+ * - Negativas:
+ *   - Necessidade de refatorar código existente
+ *   - Aumento inicial da complexidade da arquitetura
+ * 
+ * ## Implementação
+ * A migração será feita usando padrão Strangler Fig com feature flag
+ * 'use_new_pricing_service' para ativar/desativar o novo sistema
+ * em produção, permitindo rollback rápido se necessário.
+ */
+</example>
+
+<example type="invalid">
+// ❌ MIGRAÇÃO BIG BANG SEM PLANEJAMENTO
+
+// Abordagem incorreta: Reescrever completamente sem estratégia incremental
+// 1. Deletar código antigo completamente
+rm -rf app/*  // Remover todo o código existente
+
+// 2. Implementar nova arquitetura de uma vez, sem testes prévios
+// Novo ProductController.php
+class ProductController extends Controller
+{
+    // Código completamente novo sem verificar compatibilidade
+    // com o sistema existente
+}
+
+// ❌ AUSÊNCIA DE TESTES ANTES DA MIGRAÇÃO
+
+// Refatorar sem testes que garantam o comportamento original
+public function migrateProductService()
+{
+    // Remover implementação antiga
+    // Adicionar nova implementação
+    // Sem testes para verificar se o comportamento é idêntico
+}
+
+// ❌ DEPENDÊNCIAS HARDCODED EM VEZ DE INJEÇÃO DE DEPENDÊNCIA
+
+// Controller com dependências hardcoded
+class ProductController extends Controller
+{
+    public function store(Request $request)
+    {
+        // Dependência hardcoded difícil de mockar em testes
+        $service = new ProductService();
+        $product = $service->createProduct($request->all());
+        
+        return response()->json($product);
+    }
+}
+
+// ❌ MUDANÇAS DE BANCO SEM SCRIPTS DE MIGRAÇÃO
+
+// Alteração direta no banco de dados sem script versionado
+$query = "ALTER TABLE products DROP COLUMN old_field, ADD COLUMN new_field VARCHAR(100)";
+DB::statement($query);
+
+// ❌ VIOLAÇÃO DE PRINCÍPIOS SOLID
+
+// Classe com múltiplas responsabilidades (Single Responsibility Principle violado)
+class UserService
+{
+    public function register($userData)
+    {
+        // Validação
+        if (empty($userData['email'])) {
+            throw new Exception('Email é obrigatório');
+        }
+        
+        // Persistência
+        $user = new User();
+        $user->fill($userData);
+        $user->save();
+        
+        // Envio de email
+        Mail::to($user->email)->send(new WelcomeEmail($user));
+        
+        // Logging
+        Log::info("Novo usuário registrado: {$user->id}");
+        
+        // Notificação para admin
+        $admin = User::where('role', 'admin')->first();
+        $admin->notify(new NewUserNotification($user));
+        
+        return $user;
+    }
+}
+
+// ❌ MIGRAÇÃO SEM DOCUMENTAÇÃO 
+
+// Novo código sem documentar decisões ou explicar mudanças
+/**
+ * @param Request $request
+ * @return JsonResponse
+ */
+public function process(Request $request)
+{
+    // Código complexo sem documentação sobre o que mudou
+    // em relação à versão anterior ou por que foi escolhida
+    // esta implementação
+}
+
+// ❌ FEATURE FLAGS MAL IMPLEMENTADOS
+
+// Feature flag com valores hardcoded espalhados pelo código
+if (APP_ENV == 'production' && true) {  // Flag hardcoded
+    // Usar novo serviço
+} else {
+    // Usar serviço antigo
+}
+
+// Em outro arquivo, outra implementação do mesmo flag
+if (getenv('NEW_FEATURE') == true) {  // Inconsistente com a implementação anterior
+    // Comportamento A
+} else {
+    // Comportamento B
+}
+
+// ❌ AUSÊNCIA DE PLANO DE ROLLBACK
+
+// Deploy sem estratégia de rollback
+public function deploy()
+{
+    // Desligar sistema atual
+    // Aplicar mudanças
+    // Sem plano para reverter caso algo dê errado
+}
+</example> 

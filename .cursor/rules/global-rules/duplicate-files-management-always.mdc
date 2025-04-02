@@ -1,0 +1,191 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Gestão de Arquivos Duplicados
+
+## Regras Críticas
+
+### Identificação de Duplicações
+- Antes de iniciar qualquer desenvolvimento, faça uma análise prévia do código existente
+- Use ferramentas de busca para identificar arquivos e componentes com nomes ou funcionalidades similares
+- Considere como duplicado qualquer arquivo que:
+  - Implementa funcionalidade já existente em outro arquivo
+  - Tem estrutura muito similar a outro componente
+  - Cumpre o mesmo propósito que um componente existente, mas com estilo diferente
+  - Replica lógica de negócio já implementada
+
+### Criação e Manutenção da Pasta de Duplicados
+- **SEMPRE** crie a pasta `/duplicated-files` na raiz do projeto se ela não existir
+- Dentro desta pasta, mantenha a mesma estrutura de diretórios do projeto original
+- Nunca remova arquivos diretamente; sempre mova-os para a pasta de duplicados primeiro
+- Crie uma subpasta `/duplicated-files/_logs` para armazenar os registros de duplicação
+
+### Processo de Movimentação
+- Para cada arquivo duplicado:
+  1. Crie a estrutura de diretórios correspondente dentro de `/duplicated-files`
+  2. Mova o arquivo para esta localização
+  3. Crie um arquivo de log com o mesmo nome e extensão `.log` no diretório `_logs`
+  4. Atualize todas as importações e referências para apontar para o arquivo correto
+
+### Formato do Log de Duplicação
+- Cada arquivo de log deve conter:
+  - Data da identificação da duplicação
+  - Caminho original do arquivo
+  - Caminho do arquivo que deve ser usado em seu lugar
+  - Razão detalhada para considerar o arquivo como duplicado
+  - Lista de arquivos que faziam referência ao duplicado
+  - Quaisquer observações especiais sobre a migração
+
+### Plano de Remoção
+- A pasta `/duplicated-files` deve ser considerada temporária
+- Estabeleça um período de verificação (ex: 2 semanas) após a movimentação
+- Após este período, verifique se todas as referências foram atualizadas
+- Somente após confirmar que a aplicação funciona corretamente sem os arquivos duplicados, remova a pasta
+- Mantenha os logs de duplicação em um arquivo de histórico
+
+## Exemplos
+
+<example>
+// 1. Identificar um componente duplicado
+// SearchBar.jsx e SearchInput.jsx implementam funcionalidade similar
+
+// SearchBar.jsx (componente original)
+const SearchBar = ({ onSearch, placeholder = 'Search...' }) => {
+  const [query, setQuery] = useState('');
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearch(query);
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="search-bar">
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder={placeholder}
+      />
+      <button type="submit">Search</button>
+    </form>
+  );
+};
+
+// SearchInput.jsx (componente duplicado)
+const SearchInput = ({ onSearch, placeholderText = 'Search...' }) => {
+  const [searchText, setSearchText] = useState('');
+  
+  const handleInputChange = (e) => {
+    setSearchText(e.target.value);
+  };
+  
+  const submitSearch = (e) => {
+    e.preventDefault();
+    onSearch(searchText);
+  };
+  
+  return (
+    <form onSubmit={submitSearch} className="search-input-container">
+      <input
+        type="text"
+        value={searchText}
+        onChange={handleInputChange}
+        placeholder={placeholderText}
+      />
+      <button type="submit">
+        <SearchIcon />
+      </button>
+    </form>
+  );
+};
+
+// 2. Criar o arquivo de log
+// /duplicated-files/_logs/SearchInput.jsx.log
+/*
+Data: 2023-06-15
+Arquivo original: src/components/search/SearchInput.jsx
+Substituir por: src/components/common/SearchBar.jsx
+Razão: Implementa funcionalidade de busca idêntica ao componente SearchBar existente.
+       Ambos os componentes gerenciam um estado de input e chamam uma função onSearch no submit.
+       A única diferença é o estilo e o uso de um ícone no botão, que pode ser adicionado ao SearchBar original.
+
+Arquivos afetados:
+- src/pages/ProductPage.jsx
+- src/components/Header.jsx
+
+Observações: 
+- Foi adicionada a opção de ícone ao SearchBar original
+- Os estilos foram mesclados para manter consistência visual
+*/
+
+// 3. Atualizar o componente original para incorporar funcionalidades do duplicado
+const SearchBar = ({ 
+  onSearch, 
+  placeholder = 'Search...', 
+  showIcon = false 
+}) => {
+  const [query, setQuery] = useState('');
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearch(query);
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="search-bar">
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder={placeholder}
+      />
+      <button type="submit">
+        {showIcon ? <SearchIcon /> : 'Search'}
+      </button>
+    </form>
+  );
+};
+
+// 4. Atualizar todas as importações nos arquivos afetados
+// src/pages/ProductPage.jsx - antes
+// import { SearchInput } from '../components/search/SearchInput';
+// ...
+// <SearchInput onSearch={handleSearch} placeholderText="Find products..." />
+
+// src/pages/ProductPage.jsx - depois
+import { SearchBar } from '../components/common/SearchBar';
+// ...
+<SearchBar 
+  onSearch={handleSearch} 
+  placeholder="Find products..." 
+  showIcon={true}
+/>
+</example>
+
+<example type="invalid">
+// ❌ Excluir arquivo duplicado sem mover para a pasta de duplicados
+// Deletar diretamente: src/components/search/SearchInput.jsx
+
+// ❌ Não documentar razões e arquivos afetados
+// /duplicated-files/_logs/SearchInput.jsx.log
+/*
+Arquivo duplicado, usar SearchBar em vez disso.
+*/
+
+// ❌ Não atualizar todas as referências
+// Arquivos que ainda importam o componente removido
+import { SearchInput } from '../components/search/SearchInput'; // Erro de importação
+
+// ❌ Mover para pasta de duplicados sem manter estrutura de diretórios
+// Movido incorretamente para:
+// /duplicated-files/SearchInput.jsx
+// Em vez do correto:
+// /duplicated-files/components/search/SearchInput.jsx
+
+// ❌ Não incorporar funcionalidades únicas do componente duplicado
+// Ignorar o ícone e estilos específicos do SearchInput na atualização do SearchBar,
+// causando inconsistência visual ou perda de funcionalidade
+</example> 

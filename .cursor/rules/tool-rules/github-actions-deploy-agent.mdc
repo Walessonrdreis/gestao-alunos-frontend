@@ -1,0 +1,404 @@
+---
+description: Esta regra define melhores práticas e estruturas para configuração de CI/CD utilizando GitHub Actions. Deve ser aplicada sempre que: (1) Iniciando um novo projeto que requer pipeline de CI/CD, (2) Configurando automação de testes e deploy, (3) Verificando se um projeto existente segue as boas práticas de DevOps, (4) Migrando de outra plataforma de CI/CD para GitHub Actions, (5) Implementando qualquer tipo de automação de build, teste e deploy. A regra garante configurações padronizadas, seguras e eficientes para diversos tipos de projetos. É particularmente crucial para manter a qualidade do código através de testes automatizados e implantações confiáveis em ambientes de desenvolvimento, homologação e produção.
+globs: 
+alwaysApply: false
+---
+
+# Regras para Deploy com GitHub Actions
+
+## Regras Críticas
+
+### Estrutura de Diretórios
+- **SEMPRE** verificar a existência da pasta `.github/workflows` na raiz do projeto
+- Criar a pasta se não existir com `mkdir -p .github/workflows`
+- Armazenar todos os arquivos de workflow do GitHub Actions nesta pasta
+
+### Verificação de Workflows Básicos
+- Todo projeto deve conter no mínimo um arquivo de workflow para CI (integração contínua)
+- Projetos em produção devem ter workflows separados para CI e CD (continuous deployment)
+- Verificar pela existência dos arquivos de workflow básicos e criar se não existirem:
+  - `.github/workflows/ci.yml` - Para testes e validação de código
+  - `.github/workflows/cd.yml` - Para deploy em ambientes
+
+### Configuração de Secrets
+- Verificar se o projeto utiliza GitHub Secrets para armazenar informações sensíveis
+- **NUNCA** armazenar credenciais, tokens ou chaves diretamente nos arquivos de workflow
+- Garantir que todas as chaves SSH, tokens de API e senhas sejam referenciadas como secrets
+- Verificar a existência de secrets necessários e orientar sobre sua criação se ausentes
+
+### Triggers de Workflow
+- Configurar eventos de trigger específicos para cada workflow
+- Para CI: Executar em push/PR para branches principais e feature branches
+- Para CD: Executar apenas em push para branches de deploy específicas (main, production, staging)
+- Incluir filtros de path quando possível para evitar builds desnecessários
+
+### Jobs e Steps
+- Organizar workflows em jobs lógicos (build, test, deploy)
+- Garantir dependências entre jobs usando `needs`
+- Utilizar condicionais (`if`) para controlar a execução de jobs específicos
+- Nomear claramente cada step para facilitar depuração
+- Usar actions oficiais e bem mantidas da GitHub Marketplace
+
+### Ambientes de Deploy
+- Configurar múltiplos ambientes de deploy (dev, staging, prod)
+- Utilizar environments do GitHub para rastreamento e proteção
+- Implementar aprovações obrigatórias para deploys em produção
+- Configurar variáveis de ambiente específicas para cada environment
+
+### Caching e Otimização
+- Implementar cache para dependências (npm, composer, pip, etc.)
+- Usar estratégias de matriz para testes em múltiplas versões/plataformas
+- Otimizar build steps para reduzir tempo de execução
+- Usar GitHub artifacts para compartilhar dados entre jobs
+
+### Segurança e Qualidade
+- Incluir análise estática de código nos workflows de CI
+- Implementar verificação de vulnerabilidades de dependências
+- Exigir testes de unidade passando antes de permitir merge
+- Implementar notificações de falha de workflow
+
+### Recuperação e Rollback
+- Implementar estratégia de backup antes de deploy em produção
+- Criar mecanismos de rollback automático em caso de falha
+- Verificar saúde do aplicativo após deploy
+- Documentar procedimentos manuais de rollback quando necessário
+
+### Monitoramento e Logs
+- Configurar retenção de logs do workflow
+- Implementar notificações para falhas e sucessos importantes
+- Criar dashboards de status para ambientes de produção
+- Armazenar artefatos de build para referência futura
+
+## Exemplos
+
+<example>
+# Exemplo de workflow de CI para projeto JavaScript/TypeScript
+# Arquivo: .github/workflows/ci.yml
+
+name: Integração Contínua
+
+on:
+  push:
+    branches: [ main, development, feature/* ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  lint:
+    name: Verificação de Linting
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Instalar dependências
+      run: npm ci
+    
+    - name: Executar linting
+      run: npm run lint
+  
+  test:
+    name: Testes unitários
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Instalar dependências
+      run: npm ci
+    
+    - name: Executar testes
+      run: npm test
+    
+    - name: Upload relatório de cobertura
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage/
+        retention-days: 14
+
+# Exemplo de workflow de CD para projeto React
+# Arquivo: .github/workflows/cd.yml
+
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Instalar dependências
+      run: npm ci
+    
+    - name: Build aplicação
+      run: npm run build
+    
+    - name: Upload artefato de build
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-files
+        path: build/
+        retention-days: 7
+
+  deploy-staging:
+    name: Deploy para Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/staging'
+    environment:
+      name: staging
+      url: https://staging.example.com
+    
+    steps:
+    - name: Download artefato de build
+      uses: actions/download-artifact@v4
+      with:
+        name: build-files
+        path: build
+    
+    - name: Configurar AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    
+    - name: Deploy para S3
+      run: aws s3 sync build/ s3://staging-bucket/ --delete
+    
+    - name: Invalidar cache CloudFront
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.STAGING_CLOUDFRONT_ID }} --paths "/*"
+
+  deploy-production:
+    name: Deploy para Produção
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://example.com
+    
+    steps:
+    - name: Download artefato de build
+      uses: actions/download-artifact@v4
+      with:
+        name: build-files
+        path: build
+    
+    - name: Configurar AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    
+    - name: Backup antes de deploy
+      run: aws s3 sync s3://production-bucket/ s3://backup-bucket/$(date +%Y-%m-%d)/
+    
+    - name: Deploy para S3
+      run: aws s3 sync build/ s3://production-bucket/ --delete
+    
+    - name: Invalidar cache CloudFront
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.PRODUCTION_CLOUDFRONT_ID }} --paths "/*"
+    
+    - name: Verificar deploy
+      run: |
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://example.com)
+        if [ "$response" = "200" ]; then
+          echo "Site está acessível (HTTP 200 OK)"
+        else
+          echo "ATENÇÃO: Site retornou código HTTP $response"
+          exit 1
+        fi
+
+# Script de verificação e criação para workflows básicos
+# Este script pode ser executado no ambiente local para verificar e criar arquivos de workflow básicos
+
+check_and_create_github_workflows() {
+  # Criar diretório de workflows se não existir
+  mkdir -p .github/workflows
+  
+  # Verificar e criar workflow de CI básico
+  if [ ! -f ".github/workflows/ci.yml" ]; then
+    echo "Criando workflow de CI básico..."
+    cat > .github/workflows/ci.yml << 'EOF'
+name: CI
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  test:
+    name: Teste e Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configurar ambiente
+      run: echo "Configurando ambiente..."
+      
+    - name: Instalar dependências
+      run: echo "Instalando dependências..."
+      
+    - name: Executar testes
+      run: echo "Executando testes..."
+EOF
+    echo "Workflow de CI criado com sucesso em .github/workflows/ci.yml"
+  else
+    echo "Workflow de CI já existe!"
+  fi
+  
+  # Verificar e criar workflow de CD básico
+  if [ ! -f ".github/workflows/cd.yml" ]; then
+    echo "Criando workflow de CD básico..."
+    cat > .github/workflows/cd.yml << 'EOF'
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configurar ambiente
+      run: echo "Configurando ambiente para deploy..."
+      
+    - name: Build
+      run: echo "Construindo aplicação..."
+      
+    - name: Deploy
+      run: echo "Realizando deploy..."
+EOF
+    echo "Workflow de CD criado com sucesso em .github/workflows/cd.yml"
+  else
+    echo "Workflow de CD já existe!"
+  fi
+}
+
+# Execute a função para verificar e criar workflows
+check_and_create_github_workflows
+</example>
+
+<example type="invalid">
+# Workflow com problemas de segurança e organização
+
+name: Deploy App
+
+on: push
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    # ❌ Sem controle de branches específicas para deploy
+    - uses: actions/checkout@v4
+    
+    # ❌ Credenciais hard-coded no arquivo
+    - name: Deploy com FTP
+      run: |
+        apt-get update
+        apt-get install -y lftp
+        lftp -u username,password123 sftp://exemplo.com -e "mirror -R local/ remote/; quit"
+    
+    # ❌ Sem etapas de teste antes de deploy
+    
+    # ❌ Sem separação de ambientes
+    
+    # ❌ Sem verificação de sucesso após deploy
+    
+    # ❌ Sem estratégia de rollback
+    
+    # ❌ Sem notificação do resultado
+
+# Workflow mal estruturado sem jobs lógicos
+
+name: Build and Test
+
+on: push
+
+jobs:
+  do_everything:
+    runs-on: ubuntu-latest
+    steps:
+    # ❌ Um único job para todas as tarefas
+    - uses: actions/checkout@v4
+    
+    # ❌ Mistura de responsabilidades sem separação lógica
+    - name: Instalar dependências
+      run: npm install
+    
+    - name: Build
+      run: npm run build
+    
+    - name: Test
+      run: npm test
+    
+    - name: Deploy para desenvolvimento
+      run: ./deploy-dev.sh
+    
+    - name: Deploy para produção
+      # ❌ Deploy para produção sem aprovação ou controle
+      run: ./deploy-prod.sh
+    
+    # ❌ Sem uso de cache para acelerar builds
+    
+    # ❌ Todos os steps são executados mesmo em branches de feature
+
+# Script incorreto para verificação de workflows
+
+# ❌ Script que sobrescreve workflows existentes sem verificação
+create_workflows() {
+  # Sobrescreve sem verificar se já existe
+  mkdir -p .github/workflows
+  echo "name: CI" > .github/workflows/ci.yml
+  echo "on: push" >> .github/workflows/ci.yml
+  
+  # ❌ Não verifica o tipo de projeto antes de criar workflows
+  
+  # ❌ Cria apenas um workflow mínimo sem personalização
+}
+
+# ❌ Executa função sem confirmação do usuário
+create_workflows
+</example> 

