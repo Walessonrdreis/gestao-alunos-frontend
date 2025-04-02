@@ -4,7 +4,7 @@
  * Este arquivo duplica exatamente o comportamento do index.php do frontend PHP,
  * incluindo roteamento e proteção de rotas.
  */
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/auth.css';
@@ -55,29 +55,29 @@ const Header = () => {
     <header className="bg-primary text-white py-3 shadow-sm">
         <nav className="navbar navbar-expand-lg navbar-dark">
             <div className="container">
-                <a className="navbar-brand fw-bold" href="/">
+                <Link className="navbar-brand fw-bold" to="/">
                     <i className="fas fa-graduation-cap me-2"></i>
                     Gerenciamento de Alunos
-                </a>
+                </Link>
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span className="navbar-toggler-icon"></span>
                 </button>
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav ms-auto">
                         <li className="nav-item">
-                            <a className="nav-link" href="/">
+                            <Link className="nav-link" to="/">
                                 <i className="fas fa-home me-1"></i> Home
-                            </a>
+                            </Link>
                         </li>
                         <li className="nav-item">
-                            <a className="nav-link" href="/aluno/cadastro">
+                            <Link className="nav-link" to="/aluno/cadastro">
                                 <i className="fas fa-user-plus me-1"></i> Cadastro
-                            </a>
+                            </Link>
                         </li>
                         <li className="nav-item">
-                            <a className="nav-link" href="/alunos">
+                            <Link className="nav-link" to="/alunos">
                                 <i className="fas fa-list me-1"></i> Lista de Alunos
-                            </a>
+                            </Link>
                         </li>
                         <li className="nav-item">
                             <a className="nav-link" href="#" onClick={handleLogout}>
@@ -107,9 +107,9 @@ const Footer = () => {
                 <div className="col-md-3">
                     <h5>Links</h5>
                     <ul className="list-unstyled">
-                        <li><a href="/" className="text-white">Home</a></li>
-                        <li><a href="/aluno/cadastro" className="text-white">Cadastro</a></li>
-                        <li><a href="/alunos" className="text-white">Lista de Alunos</a></li>
+                        <li><Link to="/" className="text-white">Home</Link></li>
+                        <li><Link to="/aluno/cadastro" className="text-white">Cadastro</Link></li>
+                        <li><Link to="/alunos" className="text-white">Lista de Alunos</Link></li>
                     </ul>
                 </div>
                 <div className="col-md-3">
@@ -152,7 +152,7 @@ const MainContent = () => {
               <i className="fas fa-user-plus fa-3x text-primary mb-3"></i>
               <h5 className="card-title">Cadastrar Aluno</h5>
               <p className="card-text">Adicione novos alunos ao sistema.</p>
-              <a href="/aluno/cadastro" className="btn btn-primary">Cadastrar</a>
+              <Link to="/aluno/cadastro" className="btn btn-primary">Cadastrar</Link>
             </div>
           </div>
         </div>
@@ -163,7 +163,7 @@ const MainContent = () => {
               <i className="fas fa-list fa-3x text-primary mb-3"></i>
               <h5 className="card-title">Listar Alunos</h5>
               <p className="card-text">Visualize e gerencie os alunos cadastrados.</p>
-              <a href="/alunos" className="btn btn-primary">Visualizar</a>
+              <Link to="/alunos" className="btn btn-primary">Visualizar</Link>
             </div>
           </div>
         </div>
@@ -174,7 +174,7 @@ const MainContent = () => {
               <i className="fas fa-search fa-3x text-primary mb-3"></i>
               <h5 className="card-title">Buscar Aluno</h5>
               <p className="card-text">Encontre rapidamente informações de alunos.</p>
-              <a href="/alunos" className="btn btn-primary">Buscar</a>
+              <Link to="/alunos" className="btn btn-primary">Buscar</Link>
             </div>
           </div>
         </div>

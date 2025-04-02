@@ -21,6 +21,8 @@ interface User {
   email: string;
   /** Perfil do usuário (professor, coordenador, administrador) */
   perfil?: string;
+  /** Papel/função do usuário no sistema (admin, user, etc.) */
+  role: string;
   /** Telefone do usuário */
   telefone?: string;
 }
@@ -174,7 +176,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         id: 1,
         nome: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
         email: email,
-        perfil: 'administrador'
+        perfil: 'administrador',
+        role: 'admin'
       };
       
       setUser(userData);
