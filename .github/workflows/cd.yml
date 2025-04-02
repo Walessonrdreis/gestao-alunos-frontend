@@ -25,6 +25,18 @@ jobs:
       - name: Build do projeto
         run: npm run build
         
+      - name: Criar arquivo .htaccess para redirecionamento SPA
+        run: |
+          echo "# Redirecionamento para Single Page Application (SPA)" > ./dist/.htaccess
+          echo "<IfModule mod_rewrite.c>" >> ./dist/.htaccess
+          echo "  RewriteEngine On" >> ./dist/.htaccess
+          echo "  RewriteBase /applications/escola/" >> ./dist/.htaccess
+          echo "  RewriteRule ^index\.html$ - [L]" >> ./dist/.htaccess
+          echo "  RewriteCond %{REQUEST_FILENAME} !-f" >> ./dist/.htaccess
+          echo "  RewriteCond %{REQUEST_FILENAME} !-d" >> ./dist/.htaccess
+          echo "  RewriteRule . /applications/escola/index.html [L]" >> ./dist/.htaccess
+          echo "</IfModule>" >> ./dist/.htaccess
+        
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:

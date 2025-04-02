@@ -24,6 +24,14 @@ import PdfPage from './pages/PdfPage/PdfPage';
 // Contexto de autenticação
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
+// Componentes de layout
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+import MainContent from './components/layout/MainContent';
+
+// Caminho base da aplicação conforme configurado no vite.config.ts
+const BASE_PATH = '/applications/escola';
+
 /**
  * Interface para as propriedades do layout principal
  */
@@ -232,7 +240,7 @@ function App() {
 
   return (
     <AuthProvider>
-      <Router>
+      <Router basename={BASE_PATH}>
         <Routes>
           {/* Rotas públicas */}
           <Route path="/login" element={<Login />} />
