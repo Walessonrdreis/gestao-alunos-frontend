@@ -22,10 +22,17 @@ interface QuickAccessItem {
 }
 
 /**
+ * Interface para as propriedades do componente Sidebar
+ */
+interface SidebarProps {
+  isCollapsed?: boolean;
+}
+
+/**
  * Componente de barra lateral da aplicação
  * Responsável por exibir a navegação principal e os links de acesso rápido
  */
-const Sidebar = () => {
+const Sidebar = ({ isCollapsed = false }: SidebarProps) => {
   const location = useLocation();
   const { user } = useAuth();
   
@@ -105,16 +112,17 @@ const Sidebar = () => {
     <li className={styles.navItem} key={index}>
       <Link
         to={item.path}
-        className={`${styles.navLink} ${isActive(item.path) ? styles.navLinkActive : ''}`}
+        className={`${styles.navLink} ${isActive(item.path) ? styles.navLinkActive : ''} ${isCollapsed ? styles.navLinkCollapsed : ''}`}
+        title={isCollapsed ? item.title : ''}
       >
-        <i className={`fas ${item.icon} ${styles.navIcon}`}></i>
-        {item.title}
+        <i className={`fas ${item.icon} ${styles.navIcon} ${isCollapsed ? styles.navIconCollapsed : ''}`}></i>
+        {!isCollapsed && <span className={styles.navText}>{item.title}</span>}
       </Link>
     </li>
   );
 
   return (
-    <div className={styles.sidebarSticky}>
+    <div className={`${styles.sidebarSticky} ${isCollapsed ? styles.sidebarStickyCollapsed : ''}`}>
       {/* Menu Principal */}
       <ul className={styles.navList}>
         {menuItems.map((item, index) => (
@@ -123,9 +131,13 @@ const Sidebar = () => {
       </ul>
       
       {/* Seção de Acesso Rápido */}
-      <h6 className={styles.sectionHeading}>
-        <span>Acesso Rápido</span>
-      </h6>
+      {!isCollapsed ? (
+        <h6 className={styles.sectionHeading}>
+          <span>Acesso Rápido</span>
+        </h6>
+      ) : (
+        <div className={styles.divider}></div>
+      )}
       
       <ul className={styles.quickAccessList}>
         {quickAccessItems.map((item, index) => renderMenuItem(item, index))}
