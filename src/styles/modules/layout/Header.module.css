@@ -117,8 +117,7 @@
   font-size: 1.5rem;
 }
 
-/* Adicione isso depois do .logoContainer */
-
+/* Botão de colapsar sidebar */
 .collapseButton {
   display: flex;
   align-items: center;
@@ -146,25 +145,62 @@
 
 /* Responsividade */
 @media (max-width: 768px) {
-  .toggler {
-    display: block;
+  .header {
+    position: relative; /* Para permitir posicionamento absoluto dentro */
   }
-
+  
+  .container {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 0.5rem;
+  }
+  
+  .logoContainer {
+    width: calc(100% - 50px); /* Reservar espaço para o ícone do usuário */
+    justify-content: flex-start;
+    margin-bottom: 0.5rem;
+  }
+  
   .brand {
-    width: auto;
+    padding: 0.5rem 0;
+    margin-left: 0.5rem;
   }
-
+  
+  .toggler {
+    display: none; /* Esconder o botão hamburger em telas menores */
+  }
+  
+  .collapseButton {
+    display: none; /* Esconder o botão de colapsar em telas menores */
+  }
+  
   .searchContainer {
-    max-width: 200px;
+    order: 2;
+    max-width: none;
+    width: 100%;
+    margin: 0.5rem 0;
   }
-
+  
+  .userContainer {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    margin-left: auto;
+  }
+  
   .userName {
     display: none;
+  }
+  
+  .userIcon {
+    display: block;
+    margin-left: 0;
+    font-size: 1.5rem;
   }
 }
 
 @media (max-width: 576px) {
   .searchContainer {
-    display: none;
+    display: block; /* Manter o input de pesquisa, mas movê-lo para baixo */
   }
 } 

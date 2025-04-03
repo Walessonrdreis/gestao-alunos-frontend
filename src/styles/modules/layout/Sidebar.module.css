@@ -11,6 +11,8 @@
 /* Sidebar colapsada - apenas ícones */
 .sidebarCollapsed {
   width: 60px;
+  min-width: 60px;
+  max-width: 60px;
 }
 
 .sidebarVisible {
@@ -33,6 +35,8 @@
 .sidebarStickyCollapsed {
   padding: 1rem 0;
   width: 60px;
+  min-width: 60px;
+  max-width: 60px;
 }
 
 .navList {
@@ -45,6 +49,7 @@
 
 .navItem {
   margin-bottom: 0.25rem;
+  position: relative;
 }
 
 .navLink {
@@ -91,6 +96,23 @@
   transition: opacity 0.2s;
 }
 
+/* Tooltip personalizado para links quando colapsado */
+.navLinkCollapsed:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #343a40;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  margin-left: 0.5rem;
+  z-index: 1000;
+}
+
 .sectionHeading {
   display: flex;
   justify-content: space-between;
@@ -122,21 +144,61 @@
 /* Responsividade */
 @media (max-width: 768px) {
   .sidebar {
-    position: fixed;
-    top: 56px;
-    left: 0;
-    z-index: 100;
-    width: 100%;
-    max-width: 250px;
-    height: calc(100vh - 56px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    overflow: hidden;
+    height: calc(100vh - 110px);
   }
   
   .sidebarHidden {
-    transform: translateX(-100%);
+    display: none;
   }
   
-  .sidebarCollapsed {
-    max-width: 60px;
+  .sidebarSticky {
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+    top: 0;
+  }
+  
+  /* Forçar o estilo de ícones apenas */
+  .navLink {
+    justify-content: center;
+    padding: 0.5rem 0;
+  }
+  
+  .navIcon {
+    margin-right: 0;
+    font-size: 1.2rem;
+  }
+  
+  .navText {
+    display: none;
+  }
+  
+  .sectionHeading {
+    display: none;
+  }
+  
+  .divider {
+    display: block;
+    margin: 0.75rem 0.25rem;
+  }
+}
+
+/* Para telas muito pequenas (menos de 576px) */
+@media (max-width: 576px) {
+  .sidebar {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+  }
+  
+  .navIcon {
+    font-size: 1.1rem;
   }
 } 
