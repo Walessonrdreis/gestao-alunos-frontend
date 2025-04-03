@@ -16,18 +16,24 @@ const MainLayout = () => {
   const { isAuthenticated, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     // Ajustar sidebar em telas menores
     const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setSidebarOpen(false);
-      } else {
+      const isMobileView = window.innerWidth < 768;
+      setIsMobile(isMobileView);
+      
+      if (isMobileView) {
+        // Em telas pequenas, manter sidebar visível e colapsado
         setSidebarOpen(true);
-        // Em telas médias, podemos considerar colapsar a sidebar por padrão
-        if (window.innerWidth < 992) {
-          setSidebarCollapsed(true);
-        }
+        setSidebarCollapsed(true);
+      } else {
+        // Em telas grandes, manter sidebar visível
+        setSidebarOpen(true);
+        
+        // Em telas médias, colapsar sidebar por padrão (opcional)
+        setSidebarCollapsed(window.innerWidth < 992);
       }
     };
 
@@ -45,9 +51,19 @@ const MainLayout = () => {
 
   /**
    * Alterna entre os estados expandido e colapsado da sidebar
+   * Só tem efeito em telas grandes
    */
   const toggleSidebarCollapse = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
+    if (!isMobile) {
+      setSidebarCollapsed(!sidebarCollapsed);
+    }
+  };
+
+  /**
+   * Alterna visibilidade da sidebar (mostrar/esconder)
+   */
+  const toggleSidebarVisibility = () => {
+    setSidebarOpen(!sidebarOpen);
   };
 
   /**
@@ -71,12 +87,15 @@ const MainLayout = () => {
     return <Navigate to="/login" replace />;
   }
 
+  // Determinar se o sidebar deve estar colapsado (sempre em mobile)
+  const isCollapsed = isMobile ? true : sidebarCollapsed;
+
   return (
     <div className={styles.layout}>
       <Header 
-        toggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
+        toggleSidebar={toggleSidebarVisibility} 
         toggleSidebarCollapse={toggleSidebarCollapse}
-        isSidebarCollapsed={sidebarCollapsed}
+        isSidebarCollapsed={isCollapsed}
       />
       
       <div className={styles.container}>
@@ -86,16 +105,16 @@ const MainLayout = () => {
             className={`
               ${styles.sidebar} 
               ${sidebarOpen ? styles.sidebarVisible : styles.sidebarHidden}
-              ${sidebarCollapsed ? styles.sidebarCollapsed : ''}
+              ${isCollapsed ? styles.sidebarCollapsed : ''}
             `}
           >
-            <Sidebar isCollapsed={sidebarCollapsed} />
+            <Sidebar isCollapsed={isCollapsed} />
           </div>
           
           {/* Conteúdo principal */}
           <div className={`
             ${styles.mainContent}
-            ${sidebarCollapsed ? styles.mainContentExpanded : ''}
+            ${isCollapsed ? styles.mainContentExpanded : ''}
           `}>
             <main className={styles.main}>
               <Outlet />

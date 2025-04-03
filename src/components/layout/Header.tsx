@@ -1,6 +1,6 @@
-import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { Dropdown } from 'react-bootstrap';
+import { useAuth } from '../../contexts/AuthContext';
 import styles from '../../styles/modules/layout/Header.module.css';
 
 /**
@@ -28,8 +28,8 @@ const Header = ({ toggleSidebar, toggleSidebarCollapse, isSidebarCollapsed }: He
       <div className={styles.container}>
         {/* Logo e botão toggle */}
         <div className={styles.logoContainer}>
-          <button
-            className={styles.collapseButton}
+          <button 
+            className={styles.collapseButton} 
             type="button"
             onClick={toggleSidebarCollapse}
             title={isSidebarCollapsed ? "Expandir menu" : "Minimizar menu"}
@@ -41,8 +41,8 @@ const Header = ({ toggleSidebar, toggleSidebarCollapse, isSidebarCollapsed }: He
             Gerenciamento de Alunos
           </Link>
           
-          <button
-            className={styles.toggler}
+          <button 
+            className={styles.toggler} 
             type="button"
             onClick={toggleSidebar}
           >
@@ -59,7 +59,7 @@ const Header = ({ toggleSidebar, toggleSidebarCollapse, isSidebarCollapsed }: He
             aria-label="Pesquisar"
           />
         </div>
-        
+
         {/* Menu de usuário */}
         <div className={styles.userContainer}>
           <Dropdown align="end">
@@ -69,7 +69,7 @@ const Header = ({ toggleSidebar, toggleSidebarCollapse, isSidebarCollapsed }: He
               className={styles.userInfo}
             >
               <div className={styles.userName}>{user?.nome || 'Usuário'}</div>
-              <i className={styles.userIcon}></i>
+              <i className={`fas fa-user ${styles.userIcon}`}></i>
             </Dropdown.Toggle>
 
             <Dropdown.Menu>
