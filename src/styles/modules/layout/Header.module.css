@@ -16,6 +16,14 @@
   align-items: center;
   width: 100%;
   padding: 0.5rem 1rem;
+  height: 56px; /* Altura fixa para o container */
+}
+
+/* Container do logo */
+.logoContainer {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
 }
 
 .brand {
@@ -26,7 +34,7 @@
   color: white;
   text-decoration: none;
   padding: 0.5rem 1rem;
-  width: 250px;
+  white-space: nowrap;
 }
 
 .toggler {
@@ -47,25 +55,44 @@
   background-size: 100%;
 }
 
-.searchWrapper {
+/* Container de pesquisa */
+.searchContainer {
   display: flex;
   align-items: center;
-  margin-left: auto;
+  justify-content: center;
+  flex: 1 1 auto;
+  max-width: 400px;
+  margin: 0 1rem;
 }
 
 .searchInput {
+  width: 100%;
+  height: 36px;
   padding: 0.375rem 0.75rem;
   font-size: 1rem;
   border: none;
   border-radius: 4px;
   background-color: rgba(255, 255, 255, 0.2);
   color: white;
-  margin-right: 0.5rem;
-  width: 200px;
+  box-sizing: border-box;
+  transition: background-color 0.2s, box-shadow 0.2s;
 }
 
 .searchInput::placeholder {
   color: rgba(255, 255, 255, 0.7);
+}
+
+.searchInput:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Container do usuário */
+.userContainer {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
 }
 
 .userInfo {
@@ -100,11 +127,17 @@
     width: auto;
   }
 
-  .searchInput {
-    display: none;
+  .searchContainer {
+    max-width: 200px;
   }
 
   .userName {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .searchContainer {
     display: none;
   }
 } 

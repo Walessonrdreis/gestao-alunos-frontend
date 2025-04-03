@@ -24,26 +24,33 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <Link to="/" className={styles.brand}>
-          Gerenciamento de Alunos
-        </Link>
+        {/* Logo e botão toggle */}
+        <div className={styles.logoContainer}>
+          <Link to="/" className={styles.brand}>
+            Gerenciamento de Alunos
+          </Link>
+          
+          <button
+            className={styles.toggler}
+            type="button"
+            onClick={toggleSidebar}
+          >
+            <span className={styles.togglerIcon}></span>
+          </button>
+        </div>
         
-        <button
-          className={styles.toggler}
-          type="button"
-          onClick={toggleSidebar}
-        >
-          <span className={styles.togglerIcon}></span>
-        </button>
-        
-        <div className={styles.searchWrapper}>
+        {/* Barra de pesquisa */}
+        <div className={styles.searchContainer}>
           <input
             className={styles.searchInput}
             type="text"
             placeholder="Pesquisar..."
             aria-label="Pesquisar"
           />
-          
+        </div>
+        
+        {/* Menu de usuário */}
+        <div className={styles.userContainer}>
           <Dropdown align="end">
             <Dropdown.Toggle
               variant="link"
