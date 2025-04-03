@@ -15,6 +15,7 @@ import Footer from './Footer';
 const MainLayout = () => {
   const { isAuthenticated, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     // Ajustar sidebar em telas menores
@@ -23,6 +24,10 @@ const MainLayout = () => {
         setSidebarOpen(false);
       } else {
         setSidebarOpen(true);
+        // Em telas médias, podemos considerar colapsar a sidebar por padrão
+        if (window.innerWidth < 992) {
+          setSidebarCollapsed(true);
+        }
       }
     };
 
@@ -37,6 +42,13 @@ const MainLayout = () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  /**
+   * Alterna entre os estados expandido e colapsado da sidebar
+   */
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
 
   /**
    * Renderiza o indicador de carregamento
@@ -61,17 +73,30 @@ const MainLayout = () => {
 
   return (
     <div className={styles.layout}>
-      <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <Header 
+        toggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
+        toggleSidebarCollapse={toggleSidebarCollapse}
+        isSidebarCollapsed={sidebarCollapsed}
+      />
       
       <div className={styles.container}>
         <div className={styles.row}>
           {/* Sidebar */}
-          <div className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarVisible : styles.sidebarHidden}`}>
-            <Sidebar />
+          <div 
+            className={`
+              ${styles.sidebar} 
+              ${sidebarOpen ? styles.sidebarVisible : styles.sidebarHidden}
+              ${sidebarCollapsed ? styles.sidebarCollapsed : ''}
+            `}
+          >
+            <Sidebar isCollapsed={sidebarCollapsed} />
           </div>
           
           {/* Conteúdo principal */}
-          <div className={styles.mainContent}>
+          <div className={`
+            ${styles.mainContent}
+            ${sidebarCollapsed ? styles.mainContentExpanded : ''}
+          `}>
             <main className={styles.main}>
               <Outlet />
             </main>

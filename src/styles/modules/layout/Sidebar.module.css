@@ -8,6 +8,11 @@
   overflow-y: auto;
 }
 
+/* Sidebar colapsada - apenas ícones */
+.sidebarCollapsed {
+  width: 60px;
+}
+
 .sidebarVisible {
   display: block;
 }
@@ -22,6 +27,12 @@
   height: calc(100vh - 56px);
   padding: 1rem 0;
   overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
+.sidebarStickyCollapsed {
+  padding: 1rem 0;
+  width: 60px;
 }
 
 .navList {
@@ -43,7 +54,14 @@
   color: #495057;
   text-decoration: none;
   border-radius: 0;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, padding 0.3s;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.navLinkCollapsed {
+  padding: 0.5rem 0;
+  justify-content: center;
 }
 
 .navLink:hover {
@@ -61,6 +79,16 @@
   margin-right: 0.5rem;
   width: 20px;
   text-align: center;
+  transition: margin 0.3s;
+}
+
+.navIconCollapsed {
+  margin-right: 0;
+  font-size: 1.2rem;
+}
+
+.navText {
+  transition: opacity 0.2s;
 }
 
 .sectionHeading {
@@ -75,6 +103,12 @@
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: 0.5px;
+}
+
+.divider {
+  height: 1px;
+  background-color: #e9ecef;
+  margin: 0.75rem 0.5rem;
 }
 
 .quickAccessList {
@@ -100,5 +134,9 @@
   
   .sidebarHidden {
     transform: translateX(-100%);
+  }
+  
+  .sidebarCollapsed {
+    max-width: 60px;
   }
 } 

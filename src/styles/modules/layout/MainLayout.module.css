@@ -16,10 +16,26 @@
   width: 100%;
 }
 
+.sidebar {
+  width: 250px;
+  flex: 0 0 250px; /* Tamanho fixo quando expandido */
+  transition: all 0.3s ease;
+}
+
+.sidebarCollapsed {
+  width: 60px;
+  flex: 0 0 60px; /* Tamanho fixo quando colapsado */
+}
+
 .mainContent {
   flex: 1;
   padding: 1.5rem;
   overflow-x: hidden;
+  transition: all 0.3s ease;
+}
+
+.mainContentExpanded {
+  margin-left: 0;
 }
 
 .main {

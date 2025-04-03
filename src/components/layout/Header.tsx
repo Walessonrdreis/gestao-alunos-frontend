@@ -8,13 +8,15 @@ import styles from '../../styles/modules/layout/Header.module.css';
  */
 interface HeaderProps {
   toggleSidebar: () => void;
+  toggleSidebarCollapse: () => void;
+  isSidebarCollapsed: boolean;
 }
 
 /**
  * Componente de cabeçalho da aplicação
  * Responsável por mostrar a barra de navegação superior, busca e menu de usuário
  */
-const Header = ({ toggleSidebar }: HeaderProps) => {
+const Header = ({ toggleSidebar, toggleSidebarCollapse, isSidebarCollapsed }: HeaderProps) => {
   const { user, logout } = useAuth();
 
   const handleLogout = () => {
@@ -26,6 +28,15 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
       <div className={styles.container}>
         {/* Logo e botão toggle */}
         <div className={styles.logoContainer}>
+          <button
+            className={styles.collapseButton}
+            type="button"
+            onClick={toggleSidebarCollapse}
+            title={isSidebarCollapsed ? "Expandir menu" : "Minimizar menu"}
+          >
+            <i className={`fas ${isSidebarCollapsed ? 'fa-indent' : 'fa-outdent'}`}></i>
+          </button>
+          
           <Link to="/" className={styles.brand}>
             Gerenciamento de Alunos
           </Link>
@@ -57,7 +68,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
               id="dropdown-user"
               className={styles.userInfo}
             >
-              <div className={styles.userName}>{user?.name || 'Usuário'}</div>
+              <div className={styles.userName}>{user?.nome || 'Usuário'}</div>
               <i className={styles.userIcon}></i>
             </Dropdown.Toggle>
 
