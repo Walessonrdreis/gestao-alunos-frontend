@@ -1,0 +1,177 @@
+---
+description: Esta regra define o fluxo de trabalho para automação de merge da branch development para main. Deve ser aplicada sempre que: (1) Um desenvolvedor realiza um commit na branch development, (2) É necessário manter a branch main atualizada com as mudanças da development, (3) Precisa-se implementar um sistema robusto de backup antes de operações críticas de merge, (4) A equipe deseja automatizar processos de integração contínua com a main enquanto continua desenvolvendo na branch development. A regra garante que o código da branch principal sempre reflita as últimas mudanças aprovadas, mantendo um histórico limpo e garantindo backups de segurança em caso de problemas.
+globs: 
+alwaysApply: false
+---
+
+# Fluxo de Trabalho Git: Auto-Merge Development para Main
+
+## Regras Críticas
+
+### Estrutura de Branches e Fluxo
+
+- Manter **SEMPRE** duas branches principais: `development` (para desenvolvimento contínuo) e `main` (código estável/produção)
+- Após cada commit na branch `development`, realizar um merge para a branch `main`
+- **SEMPRE** retornar para a branch `development` após o merge para continuar o desenvolvimento
+- Nunca fazer commits diretamente na branch `main` - ela só deve receber código via merge
+- Manter a branch `main` sempre estável e pronta para deploy
+
+### Procedimento de Merge Automático
+
+1. Ao finalizar um trabalho na branch `development`:
+   ```bash
+   git add .
+   git commit -m "feat: descrição clara da mudança"
+   ```
+
+2. Antes de iniciar o merge, criar um backup da branch atual:
+   ```bash
+   git branch development-backup-$(date +%Y%m%d%H%M%S)
+   ```
+
+3. Realizar o merge para a branch `main`:
+   ```bash
+   git checkout main
+   git merge development --no-ff
+   ```
+
+4. Após o merge bem-sucedido, voltar imediatamente para a branch `development`:
+   ```bash
+   git checkout development
+   ```
+
+5. Em caso de conflitos durante o merge:
+   ```bash
+   # Se ocorrer conflito no passo 3
+   git merge --abort
+   git checkout development
+   # Resolver conflitos na development antes de tentar novamente
+   ```
+
+### Sistema de Backup e Recuperação
+
+- Antes de cada operação crítica (merge, rebase), criar um backup da branch:
+  ```bash
+  git branch branch-name-backup-$(date +%Y%m%d%H%M%S)
+  ```
+
+- Em caso de erros graves, recuperar a partir do backup:
+  ```bash
+  git checkout development-backup-[timestamp]
+  git branch -D development
+  git checkout -b development
+  ```
+
+- Manter os últimos 5 backups e remover os mais antigos periodicamente
+
+### Verificações de Segurança
+
+- Sempre executar testes antes do merge para a branch `main`:
+  ```bash
+  # Executar na development antes do merge
+  npm test  # ou outro comando de teste apropriado para o projeto
+  ```
+
+- Verificar se o código está limpo e sem erros:
+  ```bash
+  npm run lint  # ou outro comando de lint apropriado
+  ```
+
+- Nunca forçar push (`git push --force`) para a branch `main`
+
+### Automação com Git Hooks
+
+- Implementar um hook `post-commit` na branch `development` para automatizar o processo:
+  ```bash
+  #!/bin/bash
+  # Arquivo: .git/hooks/post-commit
+  
+  CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
+  
+  if [ "$CURRENT_BRANCH" = "development" ]; then
+    echo "Criando backup da branch development..."
+    TIMESTAMP=$(date +%Y%m%d%H%M%S)
+    git branch "development-backup-$TIMESTAMP"
+    
+    echo "Realizando merge da development para main..."
+    git checkout main
+    git merge development --no-ff -m "Merge: development para main [automated]"
+    
+    echo "Retornando para a branch development..."
+    git checkout development
+    
+    echo "Processo de merge automático concluído."
+  fi
+  ```
+
+- Tornar o hook executável:
+  ```bash
+  chmod +x .git/hooks/post-commit
+  ```
+
+### Limpeza de Backups
+
+- Implementar um script de limpeza de backups antigos:
+  ```bash
+  #!/bin/bash
+  # Manter apenas os 5 backups mais recentes
+  
+  BACKUP_COUNT=$(git branch | grep "development-backup-" | wc -l)
+  
+  if [ $BACKUP_COUNT -gt 5 ]; then
+    BACKUPS_TO_DELETE=$(git branch | grep "development-backup-" | sort | head -n $(($BACKUP_COUNT - 5)))
+    
+    echo "Removendo backups antigos..."
+    for BACKUP in $BACKUPS_TO_DELETE; do
+      git branch -D $BACKUP
+    done
+  fi
+  ```
+
+## Exemplos
+
+<example>
+# Fluxo de trabalho diário
+
+# 1. Começar na branch development
+git checkout development
+
+# 2. Realizar alterações e commit
+git add .
+git commit -m "feat: implementação do cadastro de usuários"
+
+# 3. O hook post-commit é acionado automaticamente e:
+#    - Cria backup: development-backup-20230615123045
+#    - Faz checkout para main
+#    - Realiza merge da development para main
+#    - Retorna para development
+
+# 4. Sincronizar com repositório remoto
+git push origin development
+git push origin main
+
+# 5. Continuar o desenvolvimento na branch development
+# Fazer novas alterações...
+</example>
+
+<example type="invalid">
+# ❌ Trabalhar diretamente na main
+git checkout main
+git add .
+git commit -m "implementação rápida"  # Errado: não deve commitar direto na main
+
+# ❌ Não criar backup antes de operações críticas
+git checkout main
+git merge development  # Sem backup de segurança
+
+# ❌ Não retornar para development após o merge
+git checkout main
+git merge development
+# Continuar trabalhando na main... Errado!
+
+# ❌ Não usar mensagens claras para os commits
+git commit -m "fix"  # Mensagem vaga sem contexto
+
+# ❌ Forçar push para a branch main
+git push --force origin main  # Perigoso: pode apagar histórico
+</example> 
