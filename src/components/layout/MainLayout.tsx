@@ -1,10 +1,17 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import styles from '../../styles/modules/layout/MainLayout.module.css';
+
+// Componentes de layout
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
-import { useEffect, useState } from 'react';
 
+/**
+ * Componente principal de layout da aplicação
+ * Responsável pela estrutura principal, autenticação e responsividade
+ */
 const MainLayout = () => {
   const { isAuthenticated, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -31,15 +38,20 @@ const MainLayout = () => {
     };
   }, []);
 
+  /**
+   * Renderiza o indicador de carregamento
+   */
+  const renderLoading = () => (
+    <div className={styles.loading}>
+      <div className={styles.spinner} role="status">
+        <span className={styles.srOnly}>Carregando...</span>
+      </div>
+    </div>
+  );
+
   // Mostrar indicador de carregamento enquanto verifica autenticação
   if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Carregando...</span>
-        </div>
-      </div>
-    );
+    return renderLoading();
   }
 
   // Redirecionar para login se não estiver autenticado
@@ -48,19 +60,19 @@ const MainLayout = () => {
   }
 
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className={styles.layout}>
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       
-      <div className="container-fluid flex-grow-1">
-        <div className="row">
+      <div className={styles.container}>
+        <div className={styles.row}>
           {/* Sidebar */}
-          <div className={`col-md-3 col-lg-2 d-md-block bg-light sidebar ${sidebarOpen ? 'show' : 'collapse'}`}>
+          <div className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarVisible : styles.sidebarHidden}`}>
             <Sidebar />
           </div>
           
           {/* Conteúdo principal */}
-          <div className="col-md-9 col-lg-10 ms-sm-auto px-md-4">
-            <main className="py-3">
+          <div className={styles.mainContent}>
+            <main className={styles.main}>
               <Outlet />
             </main>
           </div>

@@ -1,7 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import styles from '../../styles/modules/layout/Sidebar.module.css';
 
-// Interface para os itens do menu
+/**
+ * Interface para os itens do menu de navegação
+ */
 interface MenuItem {
   title: string;
   path: string;
@@ -9,11 +12,24 @@ interface MenuItem {
   permissions?: string[];
 }
 
+/**
+ * Interface para os itens de acesso rápido
+ */
+interface QuickAccessItem {
+  title: string;
+  path: string;
+  icon: string;
+}
+
+/**
+ * Componente de barra lateral da aplicação
+ * Responsável por exibir a navegação principal e os links de acesso rápido
+ */
 const Sidebar = () => {
   const location = useLocation();
   const { user } = useAuth();
   
-  // Lista de itens do menu
+  // Lista de itens do menu principal
   const menuItems: MenuItem[] = [
     {
       title: 'Dashboard',
@@ -54,6 +70,20 @@ const Sidebar = () => {
     }
   ];
   
+  // Lista de itens de acesso rápido
+  const quickAccessItems: QuickAccessItem[] = [
+    {
+      title: 'Agenda',
+      path: '/agenda',
+      icon: 'fa-calendar-alt'
+    },
+    {
+      title: 'Notas',
+      path: '/notas',
+      icon: 'fa-star'
+    }
+  ];
+  
   // Verifica se o usuário tem permissão para ver o item do menu
   const hasPermission = (item: MenuItem): boolean => {
     if (!item.permissions) return true;
@@ -68,41 +98,37 @@ const Sidebar = () => {
     return location.pathname.startsWith(path);
   };
 
+  /**
+   * Renderiza um item de menu
+   */
+  const renderMenuItem = (item: MenuItem | QuickAccessItem, index: number) => (
+    <li className={styles.navItem} key={index}>
+      <Link
+        to={item.path}
+        className={`${styles.navLink} ${isActive(item.path) ? styles.navLinkActive : ''}`}
+      >
+        <i className={`fas ${item.icon} ${styles.navIcon}`}></i>
+        {item.title}
+      </Link>
+    </li>
+  );
+
   return (
-    <div className="sidebar-sticky pt-3">
-      <ul className="nav flex-column">
+    <div className={styles.sidebarSticky}>
+      {/* Menu Principal */}
+      <ul className={styles.navList}>
         {menuItems.map((item, index) => (
-          hasPermission(item) && (
-            <li className="nav-item" key={index}>
-              <Link
-                to={item.path}
-                className={`nav-link ${isActive(item.path) ? 'active' : ''}`}
-              >
-                <i className={`fas ${item.icon} me-2`}></i>
-                {item.title}
-              </Link>
-            </li>
-          )
+          hasPermission(item) && renderMenuItem(item, index)
         ))}
       </ul>
       
-      <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+      {/* Seção de Acesso Rápido */}
+      <h6 className={styles.sectionHeading}>
         <span>Acesso Rápido</span>
       </h6>
       
-      <ul className="nav flex-column mb-2">
-        <li className="nav-item">
-          <Link to="/agenda" className={`nav-link ${isActive('/agenda') ? 'active' : ''}`}>
-            <i className="fas fa-calendar-alt me-2"></i>
-            Agenda
-          </Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/notas" className={`nav-link ${isActive('/notas') ? 'active' : ''}`}>
-            <i className="fas fa-star me-2"></i>
-            Notas
-          </Link>
-        </li>
+      <ul className={styles.quickAccessList}>
+        {quickAccessItems.map((item, index) => renderMenuItem(item, index))}
       </ul>
     </div>
   );
