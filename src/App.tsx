@@ -6,10 +6,7 @@
  */
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './styles/auth.css';
-import './styles/index.css';
-import './styles/responsive.css';
+// Estilos são importados no main.tsx
 
 // Importação de páginas
 import Login from './pages/Login';
@@ -49,9 +46,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center min-vh-100">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Carregando...</span>
+      <div className="flex items-center justify-center min-vh-100">
+        <div className="spinner" role="status">
+          <span className="invisible">Carregando...</span>
         </div>
       </div>
     );
@@ -86,9 +83,9 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="d-flex justify-content-center align-items-center min-vh-100">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Carregando...</span>
+      <div className="flex items-center justify-center min-vh-100">
+        <div className="spinner" role="status">
+          <span className="invisible">Carregando...</span>
         </div>
       </div>
     );

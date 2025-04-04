@@ -1,4 +1,9 @@
 ---
+description: (1) Criando ou modificando arquivos CSS/SCSS, (2) Estruturando estilos para componentes React, (3) Definindo variáveis de design system, (4) Implementando layouts responsivos, (5) Criando animações e transições. A regra garante consistência visual, facilita a manutenção do código CSS e promove boas práticas de estilização. É particularmente crucial em projetos com múltiplos desenvolvedores onde a consistência visual é essencial para a experiência do usuário.
+globs: 
+alwaysApply: false
+---
+---
 description: Este conjunto de regras define padrões para documentação e organização de folhas de estilo CSS/SCSS em projetos React. Deve ser considerado sempre que: (1) Criando ou modificando arquivos CSS/SCSS, (2) Estruturando estilos para componentes React, (3) Definindo variáveis de design system, (4) Implementando layouts responsivos, (5) Criando animações e transições. A regra garante consistência visual, facilita a manutenção do código CSS e promove boas práticas de estilização. É particularmente crucial em projetos com múltiplos desenvolvedores onde a consistência visual é essencial para a experiência do usuário.
 globs:
 alwaysApply: false

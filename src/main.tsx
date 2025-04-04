@@ -10,7 +10,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
-import './index.css'
+
+// Importação do novo sistema de estilos
+import './styles/main.css'
+// Importações adicionais de estilos específicos
+import './styles/auth.css'
+import './styles/responsive.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
