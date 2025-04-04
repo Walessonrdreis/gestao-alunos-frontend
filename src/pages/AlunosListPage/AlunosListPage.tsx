@@ -8,7 +8,6 @@
  * @module AlunosListPage
  */
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import AlunosList from '../../components/ui/AlunosList/AlunosList';
 import { Aluno } from '../../components/ui/AlunoCard/AlunoCard';
@@ -247,41 +246,34 @@ const AlunosListPage = () => {
   };
 
   return (
-    <Container fluid className={styles.alunosListPage}>
-      {/* Cabeçalho da página */}
-      <Row className={`mb-4 ${styles.headerRow}`}>
-        <Col>
-          <h2 className={styles.sectionTitle}>
+    <div className="container py-4">
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <h1 className="text-2xl font-bold mb-2">
             <i className="fas fa-user-graduate me-2" aria-hidden="true"></i>
             Lista de Alunos
-          </h2>
-          <p className="text-muted">
-            Gerencie todos os alunos cadastrados no sistema.
-          </p>
-        </Col>
-        <Col xs={12} md={4} className="d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
-          <Button 
-            variant="primary" 
-            onClick={handleNovoAluno}
-            className={styles.novoAlunoBtn}
-            aria-label="Adicionar novo aluno"
+          </h1>
+          <p className="text-neutral-600">Gerencie todos os alunos cadastrados no sistema</p>
+        </div>
+        <div>
+          <button 
+            className="btn btn-primary"
+            onClick={() => navigate('/aluno/cadastro')}
           >
             <i className="fas fa-plus me-2" aria-hidden="true"></i>
             Novo Aluno
-          </Button>
-        </Col>
-      </Row>
+          </button>
+        </div>
+      </div>
 
-      {/* Lista de alunos */}
-      <Card className={styles.alunosCard}>
-        <Card.Body>
+      <div className="card">
+        <div className="card-body">
           <AlunosList
             alunos={alunos}
             disciplinas={disciplinasExemplo}
             escolas={escolasExemplo}
             loading={loading}
-            error={error}
-            itemsPerPage={6}
+            error={error || undefined}
             onSearch={handleSearch}
             onFilterByDisciplina={handleFilterByDisciplina}
             onFilterByEscola={handleFilterByEscola}
@@ -292,9 +284,9 @@ const AlunosListPage = () => {
             onImportarAlunos={handleImportarAlunos}
             onExportarAlunos={handleExportarAlunos}
           />
-        </Card.Body>
-      </Card>
-    </Container>
+        </div>
+      </div>
+    </div>
   );
 };
 

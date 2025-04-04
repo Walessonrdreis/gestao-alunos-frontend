@@ -11,18 +11,18 @@
   position: relative;
   
   /* Box model */
-  border-radius: 0.5rem;
+  border-radius: var(--border-radius-lg);
   overflow: hidden;
   
   /* Visual */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   border: none;
-  transition: all 0.3s ease;
+  transition: all var(--transition-medium);
 }
 
 .alunoCard:hover {
   /* Visual */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   transform: translateY(-3px);
 }
 
@@ -31,38 +31,38 @@
  * -------------------------------------------------------------------------- */
 .alunoNome {
   /* Tipografia */
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--primary-color);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-500);
   
   /* Box model */
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
+  margin-bottom: var(--spacing-3);
+  padding-bottom: var(--spacing-2);
   
   /* Visual */
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-neutral-200);
 }
 
 .matriculaContainer {
   /* Box model */
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--spacing-3);
   display: flex;
   align-items: center;
 }
 
 .matriculaLabel {
   /* Tipografia */
-  font-weight: 500;
-  color: #666;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-neutral-600);
   
   /* Box model */
-  margin-right: 0.5rem;
+  margin-right: var(--spacing-2);
 }
 
 .matriculaValor {
   /* Tipografia */
-  font-weight: 600;
-  color: #333;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-neutral-800);
 }
 
 .alunoEscola,
@@ -70,11 +70,11 @@
 .disciplina,
 .proximaAula {
   /* Box model */
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-2);
   
   /* Tipografia */
-  font-size: 0.9rem;
-  color: #555;
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral-700);
 }
 
 .alunoEscola i,
@@ -85,13 +85,13 @@
   width: 20px;
   
   /* Visual */
-  color: var(--primary-color);
+  color: var(--color-primary-500);
   opacity: 0.7;
 }
 
 .proximaAula {
   /* Tipografia */
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 /* -----------------------------------------------------------------------------
@@ -99,13 +99,13 @@
  * -------------------------------------------------------------------------- */
 .alunoActions {
   /* Box model */
-  margin-top: 1rem;
-  padding-top: 1rem;
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
   
   /* Visual */
   opacity: 0;
-  transition: opacity 0.3s ease;
-  border-top: 1px solid #eee;
+  transition: opacity var(--transition-medium);
+  border-top: 1px solid var(--color-neutral-200);
 }
 
 .alunoActions.show {
@@ -117,6 +117,7 @@
   /* Box model */
   display: flex;
   justify-content: flex-end;
+  gap: var(--spacing-2);
 }
 
 /* -----------------------------------------------------------------------------
@@ -132,21 +133,21 @@
 
 .alunoCardError {
   /* Tipografia */
-  color: var(--danger-color);
-  font-size: 0.9rem;
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
   text-align: center;
   
   /* Box model */
-  padding: 1rem;
+  padding: var(--spacing-4);
   
   /* Visual */
-  background-color: rgba(231, 74, 59, 0.1);
-  border-radius: 0.5rem;
+  background-color: var(--color-danger-light);
+  border-radius: var(--border-radius-lg);
 }
 
 .alunoInfo {
   /* Box model */
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-4);
 }
 
 /* -----------------------------------------------------------------------------
@@ -163,23 +164,17 @@
     flex-wrap: wrap;
     justify-content: center;
   }
-  
-  .alunoActions :global(.btn-action-icon) {
-    /* Box model */
-    margin-bottom: 0.5rem;
-    margin-right: 0.5rem;
-  }
 }
 
 @media (max-width: 576px) {
   .alunoCard {
     /* Box model */
-    margin-bottom: 1rem;
+    margin-bottom: var(--spacing-4);
   }
   
   .alunoNome {
     /* Tipografia */
-    font-size: 1.1rem;
+    font-size: var(--font-size-lg);
   }
   
   .matriculaContainer,
@@ -188,6 +183,6 @@
   .disciplina,
   .proximaAula {
     /* Tipografia */
-    font-size: 0.85rem;
+    font-size: var(--font-size-xs);
   }
 } 

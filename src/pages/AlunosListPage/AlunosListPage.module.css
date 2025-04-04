@@ -1,5 +1,14 @@
-.alunos-list-page {
-  padding: 20px 0;
+/* Estilos para a página de listagem de alunos */
+.alunosListPage {
+  padding: var(--spacing-6) 0;
+}
+
+.headerControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-6);
+  flex-wrap: wrap;
 }
 
 .section-title {
@@ -46,8 +55,29 @@
     font-size: 1.5rem;
   }
   
-  .novo-aluno-btn {
+  .headerControls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .headerControls > div:last-child {
+    margin-top: var(--spacing-4);
+    align-self: stretch;
+  }
+  
+  .headerControls button {
     width: 100%;
-    margin-top: 1rem;
   }
 } 
+.card {
+  border-radius: 0.75rem;
+  min-width: 300px;
+  width: 100%;
+  max-width: 900PX;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+  animation: fadeIn 0.3s ease-in-out;
+  border: none;
+}

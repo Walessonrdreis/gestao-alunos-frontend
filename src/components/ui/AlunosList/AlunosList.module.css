@@ -1,32 +1,32 @@
-.alunos-list {
-  margin-bottom: 2rem;
+.alunosList {
+  margin-bottom: var(--spacing-8);
 }
 
-.alunos-grid {
-  margin-top: 1rem;
+.alunosGrid {
+  margin-top: var(--spacing-4);
 }
 
-.pagination-controls {
+.paginationControls {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 1.5rem;
+  margin-top: var(--spacing-6);
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: var(--spacing-4);
 }
 
-.page-info {
-  color: #6c757d;
-  font-size: 0.9rem;
+.pageInfo {
+  color: var(--color-neutral-600);
+  font-size: var(--font-size-sm);
 }
 
-.current-page,
-.total-pages {
-  font-weight: bold;
-  color: var(--primary-color);
+.currentPage,
+.totalPages {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-500);
 }
 
-.alunos-list-loading {
+.alunosListLoading {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -34,37 +34,37 @@
   min-height: 300px;
 }
 
-.alunos-list-loading p {
-  margin-top: 1rem;
-  color: #6c757d;
+.alunosListLoading p {
+  margin-top: var(--spacing-4);
+  color: var(--color-neutral-600);
 }
 
-.alunos-list-empty {
+.alunosListEmpty {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 300px;
   text-align: center;
-  color: #6c757d;
-  padding: 2rem;
-  background-color: #f8f9fa;
-  border-radius: 0.5rem;
+  color: var(--color-neutral-600);
+  padding: var(--spacing-8);
+  background-color: var(--color-neutral-50);
+  border-radius: var(--border-radius-lg);
 }
 
-.alunos-list-empty h4 {
-  margin-bottom: 0.75rem;
-  color: #343a40;
+.alunosListEmpty h3 {
+  margin-bottom: var(--spacing-3);
+  color: var(--color-neutral-800);
 }
 
-.alunos-list-empty p {
+.alunosListEmpty p {
   max-width: 400px;
   margin: 0 auto;
 }
 
 /* Responsividade da paginação */
 @media (max-width: 576px) {
-  .pagination-controls {
+  .paginationControls {
     flex-direction: column;
   }
 } 
